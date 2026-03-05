@@ -2,9 +2,10 @@
  "name": "radar-simples-api",
  "version": "0.1.0",
  "description": "API Radar do Simples - Simulação Simples Nacional",
- "scripts": {
+  "scripts": {
   "build": "nest build",
-  "start": "nest start",
+  "start": "node dist/main",
+  "start:prod": "node dist/main",
   "start:dev": "nest start --watch",
   "start:debug": "nest start --debug --watch",
   "test": "jest",
