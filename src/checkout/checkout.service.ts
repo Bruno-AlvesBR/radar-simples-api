@@ -161,12 +161,21 @@ export class CheckoutService {
    planoObj = buildPlanoFromSubscription(sub, planoId, ciclo);
   }
 
+  const subId = session.subscription
+   ? typeof session.subscription === "string"
+     ? session.subscription
+     : (session.subscription as Stripe.Subscription).id
+   : undefined;
+  const custId = session.customer
+   ? typeof session.customer === "string"
+     ? session.customer
+     : (session.customer as Stripe.Customer).id
+   : undefined;
+
   const update: Record<string, unknown> = {
    plano: planoObj,
-   stripeCustomerId: session.customer ? String(session.customer) : undefined,
-   stripeSubscriptionId: session.subscription
-    ? String(session.subscription)
-    : undefined,
+   stripeCustomerId: custId,
+   stripeSubscriptionId: subId,
   };
   if (!planoObj) delete update.plano;
 
@@ -208,6 +217,45 @@ export class CheckoutService {
   ) as Stripe.Event;
  }
 
+ async cancelarAssinatura(
+  userId: string
+ ): Promise<{ ok: boolean; message?: string }> {
+  const stripeKey = this.config.get<string>("STRIPE_SECRET_KEY");
+  if (!stripeKey) {
+   return { ok: false, message: "Pagamento não configurado." };
+  }
+
+  const user = await this.userModel.findById(userId).lean();
+
+  if (!user?.stripeSubscriptionId || !user?.plano) {
+   return { ok: false, message: "Nenhuma assinatura ativa para cancelar." };
+  }
+
+  const dataAdmissao =
+   user.plano.dataAdmissao instanceof Date
+    ? user.plano.dataAdmissao
+    : new Date(user.plano.dataAdmissao);
+  const trialEnd = new Date(dataAdmissao);
+  trialEnd.setDate(trialEnd.getDate() + 7);
+
+  if (new Date() >= trialEnd) {
+   return {
+    ok: false,
+    message:
+     "O período de teste gratuito já acabou. Entre em contato com o suporte para cancelar.",
+   };
+  }
+
+  const stripe = new Stripe(stripeKey);
+  await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+
+  await this.userModel.findByIdAndUpdate(userId, {
+   $unset: { plano: 1, stripeSubscriptionId: 1 },
+  });
+
+  return { ok: true };
+ }
+
  async processarEvento(event: Stripe.Event): Promise<void> {
   const stripeKey = this.config.get<string>("STRIPE_SECRET_KEY");
   if (!stripeKey) return;
@@ -222,17 +270,27 @@ export class CheckoutService {
     if (userId && planoId && planoId === "pro") {
      let planoObj: PlanoAssinatura | null = null;
      if (session.subscription) {
-      const sub = await stripe.subscriptions.retrieve(
-       String(session.subscription)
-      );
+      const subId =
+       typeof session.subscription === "string"
+        ? session.subscription
+        : (session.subscription as Stripe.Subscription).id;
+      const sub = await stripe.subscriptions.retrieve(subId);
       planoObj = buildPlanoFromSubscription(sub, planoId, ciclo);
      }
+     const subId = session.subscription
+      ? typeof session.subscription === "string"
+        ? session.subscription
+        : (session.subscription as Stripe.Subscription).id
+      : undefined;
+     const custId = session.customer
+      ? typeof session.customer === "string"
+        ? session.customer
+        : (session.customer as Stripe.Customer).id
+      : undefined;
      const update: Record<string, unknown> = {
       plano: planoObj,
-      stripeCustomerId: session.customer ? String(session.customer) : undefined,
-      stripeSubscriptionId: session.subscription
-       ? String(session.subscription)
-       : undefined,
+      stripeCustomerId: custId,
+      stripeSubscriptionId: subId,
      };
      if (!planoObj) delete update.plano;
      await this.userModel.findByIdAndUpdate(userId, update);

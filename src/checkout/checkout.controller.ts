@@ -24,6 +24,20 @@ export class CheckoutController {
     return result;
   }
 
+  @Post('cancel')
+  async cancelarAssinatura(@CurrentUser() user: { sub: string }) {
+    try {
+      const result = await this.checkoutService.cancelarAssinatura(user.sub);
+      if (!result.ok) {
+        throw new BadRequestException(result.message ?? 'Não foi possível cancelar.');
+      }
+      return { ok: true };
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Erro ao cancelar assinatura.';
+      throw new BadRequestException(msg);
+    }
+  }
+
   @Post('session')
   async criarSessao(
     @CurrentUser() user: { sub: string; email?: string },
