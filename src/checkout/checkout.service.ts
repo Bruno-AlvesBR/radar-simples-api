@@ -299,10 +299,7 @@ export class CheckoutService {
    }
    case "customer.subscription.deleted": {
     const subscription = event.data.object as Stripe.Subscription;
-    await this.userModel.updateOne(
-     { stripeSubscriptionId: subscription.id },
-     { $unset: { plano: 1, stripeSubscriptionId: 1 } }
-    );
+    await this.removerPlanoPorSubscriptionId(subscription.id);
     break;
    }
    case "customer.subscription.updated": {
@@ -317,17 +314,37 @@ export class CheckoutService {
        { stripeSubscriptionId: subscription.id },
        { plano: planoObj }
       );
-     } else if (
-      ["canceled", "unpaid", "past_due"].includes(subscription.status)
+     } else {
+      await this.removerPlanoPorSubscriptionId(subscription.id);
+     }
+    }
+    break;
+   }
+   case "invoice.payment_failed": {
+    const invoice = event.data.object as Stripe.Invoice;
+    const subId = invoice.parent?.subscription_details?.subscription;
+    if (subId) {
+     const sub =
+      typeof subId === "string"
+       ? await stripe.subscriptions.retrieve(subId)
+       : subId;
+     if (
+      ["past_due", "unpaid", "canceled", "incomplete_expired"].includes(
+       sub.status
+      )
      ) {
-      await this.userModel.updateOne(
-       { stripeSubscriptionId: subscription.id },
-       { $unset: { plano: 1, stripeSubscriptionId: 1 } }
-      );
+      await this.removerPlanoPorSubscriptionId(sub.id);
      }
     }
     break;
    }
   }
+ }
+
+ private async removerPlanoPorSubscriptionId(subscriptionId: string) {
+  await this.userModel.updateOne(
+   { stripeSubscriptionId: subscriptionId },
+   { $unset: { plano: 1, stripeSubscriptionId: 1 } }
+  );
  }
 }
