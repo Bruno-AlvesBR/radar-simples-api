@@ -13,7 +13,7 @@ const PLANOS: Record<
  string,
  { nome: string; precoMensal: number; precoAnual: number }
 > = {
- pro: { nome: "PRO", precoMensal: 49, precoAnual: 490 },
+ pro: { nome: "PRO", precoMensal: 24.9, precoAnual: 249 },
 };
 
 function buildPlanoFromSubscription(

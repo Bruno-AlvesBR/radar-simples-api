@@ -47,7 +47,7 @@ export class UserService {
       return user ? this.serializeUser(user) : null;
     }
     const PLANOS: Record<string, { nome: string; precoMensal: number }> = {
-      pro: { nome: 'PRO', precoMensal: 49 },
+      pro: { nome: 'PRO', precoMensal: 24.9 },
     };
     const p = PLANOS[planoSlug];
     const now = new Date();
