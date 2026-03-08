@@ -9,24 +9,24 @@ import {
   UserDocument,
 } from '../user/schemas/user.schema';
 
-const PLANOS: Record<
+const PLANS: Record<
   string,
-  { nome: string; precoMensal: number; precoAnual: number }
+  { name: string; monthlyPrice: number; annualPrice: number }
 > = {
-  pro: { nome: 'PRO', precoMensal: 24.9, precoAnual: 249 },
+  pro: { name: 'PRO', monthlyPrice: 24.9, annualPrice: 249 },
 };
 
-function buildPlanoFromSubscription(
+function buildPlanFromSubscription(
   subscription: Stripe.Subscription,
-  planoId: string,
-  ciclo: 'mensal' | 'anual',
+  planId: string,
+  cycle: 'mensal' | 'anual',
 ): PlanoAssinatura {
-  const plano = PLANOS[planoId];
-  const valor =
-    ciclo === 'anual' ? plano?.precoAnual ?? 0 : plano?.precoMensal ?? 0;
+  const plan = PLANS[planId];
+  const amount =
+    cycle === 'anual' ? plan?.annualPrice ?? 0 : plan?.monthlyPrice ?? 0;
   const item = subscription.items?.data?.[0];
-  const unitAmount = item?.price?.unit_amount ?? Math.round(valor * 100);
-  const valorReal = unitAmount / 100;
+  const unitAmount = item?.price?.unit_amount ?? Math.round(amount * 100);
+  const amountReal = unitAmount / 100;
 
   const start =
     item?.current_period_start ??
@@ -34,13 +34,13 @@ function buildPlanoFromSubscription(
     Math.floor(Date.now() / 1000);
   const end =
     item?.current_period_end ??
-    start + (ciclo === 'anual' ? 365 * 24 * 60 * 60 : 30 * 24 * 60 * 60);
+    start + (cycle === 'anual' ? 365 * 24 * 60 * 60 : 30 * 24 * 60 * 60);
 
   return {
-    titulo: plano?.nome ?? planoId,
-    slug: planoId,
-    valor: valorReal,
-    ciclo,
+    titulo: plan?.name ?? planId,
+    slug: planId,
+    valor: amountReal,
+    ciclo: cycle,
     dataAdmissao: new Date(start * 1000),
     dataVencimento: new Date(end * 1000),
   };
@@ -53,11 +53,11 @@ export class CheckoutService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  async criarSessao(
+  async createSession(
     userId: string,
     userEmail: string,
-    planoId: string,
-    ciclo: 'mensal' | 'anual',
+    planId: string,
+    cycle: 'mensal' | 'anual',
   ): Promise<{ url: string; sessionId: string }> {
     const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
     if (!stripeKey) {
@@ -66,13 +66,13 @@ export class CheckoutService {
       );
     }
 
-    const plano = PLANOS[planoId];
-    if (!plano) {
+    const plan = PLANS[planId];
+    if (!plan) {
       throw new Error('Plano inválido.');
     }
 
-    const valor = ciclo === 'anual' ? plano.precoAnual : plano.precoMensal;
-    const unitAmount = Math.round(valor * 100); // BRL em centavos
+    const amount = cycle === 'anual' ? plan.annualPrice : plan.monthlyPrice;
+    const unitAmountCentavos = Math.round(amount * 100);
 
     const stripe = new Stripe(stripeKey);
 
@@ -82,31 +82,31 @@ export class CheckoutService {
     const cancelUrl =
       this.config.get('FRONTEND_URL', 'http://localhost:4200') +
       '/checkout?plano=' +
-      planoId +
+      planId +
       '&ciclo=' +
-      ciclo;
+      cycle;
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       locale: 'pt-BR',
       customer_email: userEmail,
       client_reference_id: userId,
-      metadata: { planoId, ciclo },
+      metadata: { planId, cycle, userId },
       allow_promotion_codes: true,
       line_items: [
         {
           price_data: {
             currency: 'brl',
             product_data: {
-              name: plano.nome,
+              name: plan.name,
               description:
-                ciclo === 'anual'
+                cycle === 'anual'
                   ? 'Assinatura anual (2 meses grátis)'
                   : 'Assinatura mensal',
             },
-            unit_amount: unitAmount,
+            unit_amount: unitAmountCentavos,
             recurring: {
-              interval: ciclo === 'anual' ? 'year' : 'month',
+              interval: cycle === 'anual' ? 'year' : 'month',
             },
           },
           quantity: 1,
@@ -114,7 +114,7 @@ export class CheckoutService {
       ],
       subscription_data: {
         trial_period_days: 7,
-        metadata: { planoId, ciclo, userId },
+        metadata: { planId, cycle, userId },
       },
       success_url: successUrl,
       cancel_url: cancelUrl,
@@ -127,7 +127,7 @@ export class CheckoutService {
     return { url: session.url, sessionId: session.id };
   }
 
-  async confirmarSessao(
+  async confirmSession(
     sessionId: string,
     userId: string,
   ): Promise<{
@@ -147,18 +147,22 @@ export class CheckoutService {
     if (session.client_reference_id !== userId) return null;
     if (session.status !== 'complete') return null;
 
-    const planoId = session.metadata?.planoId;
-    const ciclo = (session.metadata?.ciclo as 'mensal' | 'anual') ?? 'mensal';
-    if (!planoId || !['essencial', 'pro', 'growth'].includes(planoId))
+    const planId =
+      (session.metadata?.planId as string) ?? session.metadata?.planoId;
+    const cycle =
+      (session.metadata?.cycle as 'mensal' | 'anual') ??
+      (session.metadata?.ciclo as 'mensal' | 'anual') ??
+      'mensal';
+    if (!planId || !['essencial', 'pro', 'growth'].includes(planId))
       return null;
 
-    let planoObj: PlanoAssinatura | null = null;
+    let planObj: PlanoAssinatura | null = null;
     if (session.subscription) {
       const sub =
         typeof session.subscription === 'object'
           ? session.subscription
           : await stripe.subscriptions.retrieve(String(session.subscription));
-      planoObj = buildPlanoFromSubscription(sub, planoId, ciclo);
+      planObj = buildPlanFromSubscription(sub, planId, cycle);
     }
 
     const subId = session.subscription
@@ -173,11 +177,11 @@ export class CheckoutService {
       : undefined;
 
     const update: Record<string, unknown> = {
-      plano: planoObj,
+      plano: planObj,
       stripeCustomerId: custId,
       stripeSubscriptionId: subId,
     };
-    if (!planoObj) delete update.plano;
+    if (!planObj) delete update.plano;
 
     const user = await this.userModel
       .findByIdAndUpdate(userId, update, { new: true })
@@ -202,7 +206,7 @@ export class CheckoutService {
     };
   }
 
-  async verificarWebhook(
+  async verifyWebhook(
     webhookSecret: string,
     rawBody: Buffer,
     signature: string,
@@ -217,7 +221,7 @@ export class CheckoutService {
     ) as Stripe.Event;
   }
 
-  async cancelarAssinatura(
+  async cancelSubscription(
     userId: string,
   ): Promise<{ ok: boolean; message?: string }> {
     const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
@@ -256,7 +260,7 @@ export class CheckoutService {
     return { ok: true };
   }
 
-  async processarEvento(event: Stripe.Event): Promise<void> {
+  async processEvent(event: Stripe.Event): Promise<void> {
     const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
     if (!stripeKey) return;
     const stripe = new Stripe(stripeKey);
@@ -265,17 +269,21 @@ export class CheckoutService {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.client_reference_id;
-        const planoId = session.metadata?.planoId;
-        const ciclo = (session.metadata?.ciclo as 'mensal' | 'anual') ?? 'mensal';
-        if (userId && planoId && planoId === 'pro') {
-          let planoObj: PlanoAssinatura | null = null;
+        const planId =
+          (session.metadata?.planId as string) ?? session.metadata?.planoId;
+        const cycle =
+          (session.metadata?.cycle as 'mensal' | 'anual') ??
+          (session.metadata?.ciclo as 'mensal' | 'anual') ??
+          'mensal';
+        if (userId && planId && planId === 'pro') {
+          let planObj: PlanoAssinatura | null = null;
           if (session.subscription) {
             const subId =
               typeof session.subscription === 'string'
                 ? session.subscription
                 : (session.subscription as Stripe.Subscription).id;
             const sub = await stripe.subscriptions.retrieve(subId);
-            planoObj = buildPlanoFromSubscription(sub, planoId, ciclo);
+            planObj = buildPlanFromSubscription(sub, planId, cycle);
           }
           const subId = session.subscription
             ? typeof session.subscription === 'string'
@@ -288,34 +296,42 @@ export class CheckoutService {
               : (session.customer as Stripe.Customer).id
             : undefined;
           const update: Record<string, unknown> = {
-            plano: planoObj,
+            plano: planObj,
             stripeCustomerId: custId,
             stripeSubscriptionId: subId,
           };
-          if (!planoObj) delete update.plano;
+          if (!planObj) delete update.plano;
           await this.userModel.findByIdAndUpdate(userId, update);
         }
         break;
       }
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        await this.removerPlanoPorSubscriptionId(subscription.id);
+        await this.removePlanBySubscriptionId(subscription.id);
         break;
       }
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        const planoId = subscription.metadata?.planoId;
-        const ciclo =
-          (subscription.metadata?.ciclo as 'mensal' | 'anual') ?? 'mensal';
-        if (planoId && planoId === 'pro') {
+        const planId =
+          (subscription.metadata?.planId as string) ??
+          subscription.metadata?.planoId;
+        const cycle =
+          (subscription.metadata?.cycle as 'mensal' | 'anual') ??
+          (subscription.metadata?.ciclo as 'mensal' | 'anual') ??
+          'mensal';
+        if (planId && planId === 'pro') {
           if (['active', 'trialing'].includes(subscription.status)) {
-            const planoObj = buildPlanoFromSubscription(subscription, planoId, ciclo);
+            const planObj = buildPlanFromSubscription(
+              subscription,
+              planId,
+              cycle,
+            );
             await this.userModel.updateOne(
               { stripeSubscriptionId: subscription.id },
-              { plano: planoObj },
+              { plano: planObj },
             );
           } else {
-            await this.removerPlanoPorSubscriptionId(subscription.id);
+            await this.removePlanBySubscriptionId(subscription.id);
           }
         }
         break;
@@ -333,7 +349,7 @@ export class CheckoutService {
               sub.status,
             )
           ) {
-            await this.removerPlanoPorSubscriptionId(sub.id);
+            await this.removePlanBySubscriptionId(sub.id);
           }
         }
         break;
@@ -341,7 +357,7 @@ export class CheckoutService {
     }
   }
 
-  private async removerPlanoPorSubscriptionId(subscriptionId: string) {
+  private async removePlanBySubscriptionId(subscriptionId: string) {
     await this.userModel.updateOne(
       { stripeSubscriptionId: subscriptionId },
       { $unset: { plano: 1, stripeSubscriptionId: 1 } },

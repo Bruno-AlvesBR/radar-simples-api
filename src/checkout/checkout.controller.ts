@@ -10,14 +10,14 @@ export class CheckoutController {
   constructor(private readonly checkoutService: CheckoutService) {}
 
   @Get('confirm')
-  async confirmarCheckout(
+  async confirmCheckout(
     @CurrentUser() user: { sub: string },
     @Query('session_id') sessionId: string,
   ) {
     if (!sessionId) {
       throw new BadRequestException('session_id é obrigatório.');
     }
-    const result = await this.checkoutService.confirmarSessao(sessionId, user.sub);
+    const result = await this.checkoutService.confirmSession(sessionId, user.sub);
     if (!result) {
       throw new BadRequestException('Sessão inválida ou já processada.');
     }
@@ -25,9 +25,9 @@ export class CheckoutController {
   }
 
   @Post('cancel')
-  async cancelarAssinatura(@CurrentUser() user: { sub: string }) {
+  async cancelSubscription(@CurrentUser() user: { sub: string }) {
     try {
-      const result = await this.checkoutService.cancelarAssinatura(user.sub);
+      const result = await this.checkoutService.cancelSubscription(user.sub);
       if (!result.ok) {
         throw new BadRequestException(result.message ?? 'Não foi possível cancelar.');
       }
@@ -39,7 +39,7 @@ export class CheckoutController {
   }
 
   @Post('session')
-  async criarSessao(
+  async createSession(
     @CurrentUser() user: { sub: string; email?: string },
     @Body() dto: CreateSessionDto,
   ) {
@@ -49,7 +49,12 @@ export class CheckoutController {
     }
 
     try {
-      return await this.checkoutService.criarSessao(user.sub, userEmail, dto.planoId, dto.ciclo);
+      return await this.checkoutService.createSession(
+        user.sub,
+        userEmail,
+        dto.planId,
+        dto.cycle,
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erro ao criar sessão de pagamento.';
       throw new BadRequestException(msg);

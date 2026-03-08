@@ -1,11 +1,3 @@
-/**
- * Motor de Cálculo - Simples Nacional
- * Anexo III e V | Fator R | Alíquota Efetiva
- *
- * ⚠️ Simulações estimadas. Consulte seu contador.
- */
-
-// Tabela Anexo III - Serviços (Fator R >= 28%)
 const ANEXO_III = [
   { limite: 180_000, aliquota: 0.06, deducao: 0 },
   { limite: 360_000, aliquota: 0.112, deducao: 9_360 },
@@ -15,7 +7,6 @@ const ANEXO_III = [
   { limite: 4_800_000, aliquota: 0.33, deducao: 648_000 },
 ];
 
-// Tabela Anexo V - Serviços intelectuais (Fator R < 28%)
 const ANEXO_V = [
   { limite: 180_000, aliquota: 0.155, deducao: 0 },
   { limite: 360_000, aliquota: 0.18, deducao: 4_500 },
@@ -25,7 +16,7 @@ const ANEXO_V = [
   { limite: 4_800_000, aliquota: 0.305, deducao: 540_000 },
 ];
 
-const FATOR_R_LIMITE = 0.28; // 28%
+const FATOR_R_LIMITE = 0.28;
 
 export interface SimulacaoInput {
   faturamentoMensal: number;
@@ -45,9 +36,7 @@ export interface SimulacaoOutput {
   proLaboreMinimoSugerido: number;
   lucroDistribuivelEstimado: number;
   resumo: string;
-  /** Economia estimada (R$) ao ajustar pró-labore para migrar ao Anexo III */
   economiaEstimada?: number;
-  /** Alíquota efetiva (%) se aplicar a sugestão */
   aliquotaSugeridaPercentual?: number;
 }
 
@@ -58,10 +47,6 @@ function getFaixa(rbt12: number, tabela: typeof ANEXO_III) {
   return tabela[tabela.length - 1];
 }
 
-/**
- * Calcula o Fator R
- * Fator R = (Folha + Pró-labore) / Faturamento
- */
 export function calculateFatorR(
   folhaPagamento: number,
   proLabore: number,
@@ -71,17 +56,10 @@ export function calculateFatorR(
   return (folhaPagamento + proLabore) / faturamentoMensal;
 }
 
-/**
- * Determina o anexo aplicável com base no Fator R
- */
 export function getAnexoAplicavel(fatorR: number): 'III' | 'V' {
   return fatorR >= FATOR_R_LIMITE ? 'III' : 'V';
 }
 
-/**
- * Calcula a alíquota efetiva
- * Alíquota Efetiva = (RBT12 × Alíquota - Dedução) / RBT12
- */
 export function calculateAliquotaEfetiva(
   rbt12: number,
   anexo: 'III' | 'V',
@@ -93,19 +71,10 @@ export function calculateAliquotaEfetiva(
   return { aliquota: Math.max(0, aliquotaEfetiva), faixa };
 }
 
-/**
- * Calcula o DAS estimado para o mês
- * DAS = Faturamento × Alíquota Efetiva
- */
 export function calculateDas(faturamentoMensal: number, aliquotaEfetiva: number): number {
   return faturamentoMensal * aliquotaEfetiva;
 }
 
-/**
- * Sugere pró-labore mínimo para atingir Fator R >= 28%
- * (Folha + Pró-labore) / Faturamento >= 0.28
- * Pró-labore >= (0.28 × Faturamento) - Folha
- */
 export function calculateProLaboreMinimo(
   faturamentoMensal: number,
   folhaPagamento: number,
@@ -114,9 +83,6 @@ export function calculateProLaboreMinimo(
   return Math.max(0, minimo);
 }
 
-/**
- * Lucro distribuível = Faturamento - DAS - Folha - Pró-labore
- */
 export function calculateLucroDistribuivel(
   faturamentoMensal: number,
   das: number,
@@ -126,9 +92,6 @@ export function calculateLucroDistribuivel(
   return Math.max(0, faturamentoMensal - das - folhaPagamento - proLabore);
 }
 
-/**
- * Motor principal - Simulação completa
- */
 export function calculateSimples(input: SimulacaoInput): SimulacaoOutput {
   const {
     faturamentoMensal,
