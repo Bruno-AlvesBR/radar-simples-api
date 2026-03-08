@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { CnpjModule } from './cnpj/cnpj.module';
 import { SimulateModule } from './simulate/simulate.module';
+import { SupportModule } from './support/support.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { UserModule } from './user/user.module';
     CnpjModule,
     UserModule,
     SimulateModule,
+    SupportModule,
   ],
 })
 export class AppModule {}
