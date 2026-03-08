@@ -43,7 +43,6 @@ export class CheckoutController {
     @CurrentUser() user: { sub: string; email?: string },
     @Body() dto: CreateSessionDto,
   ) {
-
     const userEmail = user.email || '';
     if (!userEmail) {
       throw new BadRequestException('E-mail do usuário não encontrado.');
