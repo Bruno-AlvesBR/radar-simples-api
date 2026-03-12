@@ -9,7 +9,12 @@ async function bootstrap() {
   });
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
   app.enableCors({
-    origin: [frontendUrl, 'http://localhost:4200'],
+    origin: [
+      frontendUrl,
+      'https://radardosimples.com.br',
+      'https://www.radardosimples.com.br',
+      'http://localhost:4200',
+    ],
     credentials: true,
   });
   app.useGlobalPipes(
@@ -17,7 +22,7 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       transformOptions: { enableImplicitConversion: true },
-    }),
+    })
   );
   const port = process.env.PORT || 3000;
   await app.listen(port);
