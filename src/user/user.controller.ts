@@ -16,16 +16,8 @@ export class UserController {
   @Put('empresa')
   salvarEmpresa(
     @CurrentUser() user: { sub: string },
-    @Body() empresa: Record<string, unknown>,
+    @Body() empresa: Record<string, unknown>
   ) {
     return this.userService.salvarEmpresa(user.sub, empresa);
-  }
-
-  @Put('plano')
-  atualizarPlano(
-    @CurrentUser() user: { sub: string },
-    @Body() body: { plano: 'pro' | null },
-  ) {
-    return this.userService.atualizarPlano(user.sub, body.plano);
   }
 }

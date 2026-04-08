@@ -30,45 +30,27 @@ export class UserService {
   }
 
   async salvarEmpresa(userId: string, empresa: Record<string, unknown>) {
-    const user = await this.userModel.findByIdAndUpdate(
-      userId,
-      { empresa },
-      { new: true },
-    ).select('-password').lean();
+    const user = await this.userModel
+      .findByIdAndUpdate(userId, { empresa }, { new: true })
+      .select('-password')
+      .lean();
     return user;
   }
 
-  async atualizarPlano(userId: string, planoSlug: 'pro' | null) {
-    if (!planoSlug) {
-      const user = await this.userModel
-        .findByIdAndUpdate(userId, { $unset: { plano: 1 } }, { new: true })
-        .select('-password')
-        .lean();
-      return user ? this.serializeUser(user) : null;
-    }
-    const PLANOS: Record<string, { nome: string; precoMensal: number }> = {
-      pro: { nome: 'PRO', precoMensal: 24.9 },
+  private serializeUser(user: {
+    _id: unknown;
+    email: string;
+    nome: string;
+    empresa?: unknown;
+    plano?: {
+      titulo: string;
+      slug: string;
+      valor: number;
+      ciclo: string;
+      dataAdmissao: Date;
+      dataVencimento: Date;
     };
-    const p = PLANOS[planoSlug];
-    const now = new Date();
-    const exp = new Date(now);
-    exp.setMonth(exp.getMonth() + 1);
-    const plano = {
-      titulo: p.nome,
-      slug: planoSlug,
-      valor: p.precoMensal,
-      ciclo: 'mensal' as const,
-      dataAdmissao: now,
-      dataVencimento: exp,
-    };
-    const user = await this.userModel
-      .findByIdAndUpdate(userId, { plano }, { new: true })
-      .select('-password')
-      .lean();
-    return user ? this.serializeUser(user) : null;
-  }
-
-  private serializeUser(user: { _id: unknown; email: string; nome: string; empresa?: unknown; plano?: { titulo: string; slug: string; valor: number; ciclo: string; dataAdmissao: Date; dataVencimento: Date } }) {
+  }) {
     const plano = user.plano
       ? {
           titulo: user.plano.titulo,

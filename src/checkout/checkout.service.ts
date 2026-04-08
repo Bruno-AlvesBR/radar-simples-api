@@ -13,13 +13,13 @@ const PLANS: Record<
   string,
   { name: string; monthlyPrice: number; annualPrice: number }
 > = {
-  pro: { name: 'PRO', monthlyPrice: 24.9, annualPrice: 249 },
+  pro: { name: 'PRO', monthlyPrice: 9.9, annualPrice: 99 },
 };
 
 function buildPlanFromSubscription(
   subscription: Stripe.Subscription,
   planId: string,
-  cycle: 'mensal' | 'anual',
+  cycle: 'mensal' | 'anual'
 ): PlanoAssinatura {
   const plan = PLANS[planId];
   const amount =
@@ -50,19 +50,19 @@ function buildPlanFromSubscription(
 export class CheckoutService {
   constructor(
     private config: ConfigService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>
   ) {}
 
   async createSession(
     userId: string,
     userEmail: string,
     planId: string,
-    cycle: 'mensal' | 'anual',
+    cycle: 'mensal' | 'anual'
   ): Promise<{ url: string; sessionId: string }> {
     const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
     if (!stripeKey) {
       throw new Error(
-        'Pagamento não configurado. Entre em contato com o suporte.',
+        'Pagamento não configurado. Entre em contato com o suporte.'
       );
     }
 
@@ -129,7 +129,7 @@ export class CheckoutService {
 
   async confirmSession(
     sessionId: string,
-    userId: string,
+    userId: string
   ): Promise<{
     id: string;
     email: string;
@@ -153,8 +153,7 @@ export class CheckoutService {
       (session.metadata?.cycle as 'mensal' | 'anual') ??
       (session.metadata?.ciclo as 'mensal' | 'anual') ??
       'mensal';
-    if (!planId || !['essencial', 'pro', 'growth'].includes(planId))
-      return null;
+    if (!planId || planId !== 'pro') return null;
 
     let planObj: PlanoAssinatura | null = null;
     if (session.subscription) {
@@ -209,7 +208,7 @@ export class CheckoutService {
   async verifyWebhook(
     webhookSecret: string,
     rawBody: Buffer,
-    signature: string,
+    signature: string
   ): Promise<Stripe.Event> {
     const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
     if (!stripeKey) throw new Error('STRIPE_SECRET_KEY não configurado.');
@@ -217,12 +216,12 @@ export class CheckoutService {
     return stripe.webhooks.constructEvent(
       rawBody,
       signature,
-      webhookSecret,
+      webhookSecret
     ) as Stripe.Event;
   }
 
   async cancelSubscription(
-    userId: string,
+    userId: string
   ): Promise<{ ok: boolean; message?: string }> {
     const stripeKey = this.config.get<string>('STRIPE_SECRET_KEY');
     if (!stripeKey) {
@@ -324,11 +323,11 @@ export class CheckoutService {
             const planObj = buildPlanFromSubscription(
               subscription,
               planId,
-              cycle,
+              cycle
             );
             await this.userModel.updateOne(
               { stripeSubscriptionId: subscription.id },
-              { plano: planObj },
+              { plano: planObj }
             );
           } else {
             await this.removePlanBySubscriptionId(subscription.id);
@@ -346,7 +345,7 @@ export class CheckoutService {
               : subId;
           if (
             ['past_due', 'unpaid', 'canceled', 'incomplete_expired'].includes(
-              sub.status,
+              sub.status
             )
           ) {
             await this.removePlanBySubscriptionId(sub.id);
@@ -360,7 +359,7 @@ export class CheckoutService {
   private async removePlanBySubscriptionId(subscriptionId: string) {
     await this.userModel.updateOne(
       { stripeSubscriptionId: subscriptionId },
-      { $unset: { plano: 1, stripeSubscriptionId: 1 } },
+      { $unset: { plano: 1, stripeSubscriptionId: 1 } }
     );
   }
 }
