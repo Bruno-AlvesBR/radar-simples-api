@@ -1,0 +1,28 @@
+# radar-simples-api — Project Context
+
+**Stack:** nestjs | mongoose | typescript
+
+31 routes | 11 models | 19 env vars | 130 import links
+
+**API areas:** /auth/register, /auth/login, /auth/google, /blog/public, /blog, /blog/sitemap.xml, /checkout/webhook, /checkout/confirm, /checkout/cancel, /checkout/session
+
+**High-impact files** (change carefully):
+- src\user\schemas\user.schema.ts (imported by 7 files)
+- src\auth\jwt-auth.guard.ts (imported by 6 files)
+- src\auth\auth.module.ts (imported by 5 files)
+- src\auth\current-user.decorator.ts (imported by 5 files)
+- src\auth\google.strategy.ts (imported by 4 files)
+
+**Required env vars:** SEO_AUTOPILOT_MONGODB_URI
+
+---
+
+## Instructions for Cursor
+
+When answering questions about this project:
+1. Read `.codesight/CODESIGHT.md` first for full project structure
+2. Use `.codesight/routes.md` to find relevant API handlers
+3. Use `.codesight/schema.md` to understand data models
+4. Use `.codesight/graph.md` to check blast radius before changes
+
+Do not crawl the file tree — the codesight context map already contains the full project structure.
