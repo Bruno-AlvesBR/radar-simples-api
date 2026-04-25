@@ -1,0 +1,107 @@
+# Libraries
+
+- `src\app.module.ts` — class AppModule
+- `src\auth\auth.controller.ts` — class AuthController
+- `src\auth\auth.module.ts` — class AuthModule
+- `src\auth\auth.service.ts` — class AuthService
+- `src\auth\dto\login.dto.ts` — class LoginDto
+- `src\auth\dto\register.dto.ts` — class RegisterDto
+- `src\auth\google-auth.guard.ts` — class GoogleAuthGuard
+- `src\auth\google.strategy.ts` — class GoogleStrategy, interface GoogleProfile
+- `src\auth\jwt-auth.guard.ts` — class JwtAuthGuard
+- `src\auth\jwt.strategy.ts` — class JwtStrategy
+- `src\blog\blog.controller.ts` — class BlogController
+- `src\blog\blog.module.ts` — class BlogModule
+- `src\blog\blog.service.ts` — class BlogService
+- `src\blog\dto\create-article.dto.ts` — class CreateArticleDto
+- `src\blog\schemas\article.schema.ts`
+  - class ArticleReference
+  - class ArticleSection
+  - class Article
+  - type ArticleDocument
+  - const ArticleSchema
+- `src\checkout\checkout-webhook.controller.ts` — class CheckoutWebhookController
+- `src\checkout\checkout.controller.ts` — class CheckoutController
+- `src\checkout\checkout.module.ts` — class CheckoutModule
+- `src\checkout\checkout.service.ts` — class CheckoutService
+- `src\checkout\dto\create-session.dto.ts` — class CreateSessionDto
+- `src\cnpj\cnpj.controller.ts` — class CnpjController
+- `src\cnpj\cnpj.module.ts` — class CnpjModule
+- `src\cnpj\cnpj.service.ts` — class CnpjService
+- `src\content-generation\content-generation.controller.ts` — class ContentGenerationController
+- `src\content-generation\content-generation.module.ts` — class ContentGenerationModule
+- `src\content-generation\content-generation.service.ts` — class ContentGenerationService
+- `src\content-generation\schemas\brand-voice.schema.ts`
+  - class BrandVoice
+  - type BrandVoiceDocument
+  - const BrandVoiceSchema
+- `src\engine\simples-nacional.engine.ts`
+  - function calculateFatorR: (folhaPagamento, proLabore, faturamentoMensal) => number
+  - function getAnexoAplicavel: (fatorR) => 'III' | 'V'
+  - function calculateAliquotaEfetiva: (rbt12, anexo) => void
+  - function calculateDas: (faturamentoMensal, aliquotaEfetiva) => number
+  - function calculateProLaboreMinimo: (faturamentoMensal, folhaPagamento) => number
+  - function calculateLucroDistribuivel: (faturamentoMensal, das, folhaPagamento, proLabore) => number
+  - _...3 more_
+- `src\fiscal-reminder\dto\update-fiscal-reminder.dto.ts` — class UpdateFiscalReminderDto
+- `src\fiscal-reminder\fiscal-reminder.controller.ts` — class FiscalReminderController
+- `src\fiscal-reminder\fiscal-reminder.module.ts` — class FiscalReminderModule
+- `src\fiscal-reminder\fiscal-reminder.service.ts`
+  - class FiscalReminderService
+  - interface FiscalObligationSummaryItem
+  - interface FiscalReminderSummary
+- `src\keyword-research\keyword-research.controller.ts` — class KeywordResearchController
+- `src\keyword-research\keyword-research.module.ts` — class KeywordResearchModule
+- `src\keyword-research\keyword-research.service.ts` — class KeywordResearchService
+- `src\keyword-research\schemas\keyword-opportunity.schema.ts`
+  - class KeywordOpportunity
+  - type KeywordOpportunityDocument
+  - const KeywordOpportunitySchema
+- `src\leads\dto\create-lead.dto.ts` — class CreateLeadDto
+- `src\leads\leads.controller.ts` — class LeadsController
+- `src\leads\leads.module.ts` — class LeadsModule
+- `src\leads\leads.service.ts` — class LeadsService
+- `src\leads\schemas\lead.schema.ts`
+  - class Lead
+  - type LeadDocument
+  - const LeadSchema
+- `src\seo-autopilot\seo-autopilot.module.ts` — class SeoAutopilotModule
+- `src\seo-autopilot\seo-autopilot.service.ts` — class SeoAutopilotService
+- `src\seo-monitoring\schemas\seo-metric.schema.ts`
+  - class SeoMetric
+  - type SeoMetricDocument
+  - const SeoMetricSchema
+- `src\seo-monitoring\seo-monitoring.controller.ts` — class SeoMonitoringController
+- `src\seo-monitoring\seo-monitoring.module.ts` — class SeoMonitoringModule
+- `src\seo-monitoring\seo-monitoring.service.ts` — class SeoMonitoringService
+- `src\simulate\dto\projection.dto.ts` — class ProjectionDto
+- `src\simulate\dto\simulate.dto.ts` — class SimulateDto
+- `src\simulate\schemas\simulacao.schema.ts`
+  - class Simulacao
+  - type SimulacaoDocument
+  - const SimulacaoSchema
+- `src\simulate\simulate.controller.ts` — class SimulateController
+- `src\simulate\simulate.module.ts` — class SimulateModule
+- `src\simulate\simulate.service.ts` — class SimulateService
+- `src\stats\stats.controller.ts` — class StatsController
+- `src\stats\stats.module.ts` — class StatsModule
+- `src\stats\stats.service.ts` — class StatsService, interface PublicStatisticsPayload
+- `src\support\dto\create-support-ticket.dto.ts` — class CreateSupportTicketDto
+- `src\support\schemas\support-ticket.schema.ts`
+  - class SupportTicket
+  - type SupportTicketDocument
+  - const SupportTicketSchema
+- `src\support\support.controller.ts` — class SupportController
+- `src\support\support.module.ts` — class SupportModule
+- `src\support\support.service.ts` — class SupportService
+- `src\user\schemas\user.schema.ts`
+  - class Empresa
+  - class PlanoAssinatura
+  - class FiscalReminderPreferences
+  - class User
+  - type UserDocument
+  - const EmpresaSchema
+  - _...3 more_
+- `src\user\user.controller.ts` — class UserController
+- `src\user\user.module.ts` — class UserModule
+- `src\user\user.service.ts` — class UserService

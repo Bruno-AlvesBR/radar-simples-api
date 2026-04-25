@@ -1,0 +1,33 @@
+# Routes
+
+- `POST` `/auth/register` params() [auth]
+- `POST` `/auth/login` params() [auth]
+- `GET` `/auth/google` params() [auth]
+- `GET` `/auth/google/callback` params() [auth]
+- `GET` `/blog/public` params()
+- `GET` `/blog/public/:slug` params(slug)
+- `POST` `/blog` params()
+- `GET` `/blog/sitemap.xml` params()
+- `POST` `/checkout/webhook` params() [payment]
+- `GET` `/checkout/confirm` params() [auth, payment]
+- `POST` `/checkout/cancel` params() [auth, payment]
+- `POST` `/checkout/session` params() [auth, payment]
+- `GET` `/cnpj/:cnpj` params(cnpj) [auth]
+- `POST` `/content-generation/brand-voice/default` params()
+- `POST` `/content-generation/draft/generate` params()
+- `GET` `/fiscal-reminders/summary` params() [auth]
+- `PUT` `/fiscal-reminders/summary` params() [auth]
+- `GET` `/keyword-research` params()
+- `POST` `/keyword-research/collect` params()
+- `GET` `/keyword-research/best-next` params()
+- `POST` `/leads` params()
+- `POST` `/seo-monitoring/metrics` params()
+- `GET` `/seo-monitoring/dashboard` params()
+- `POST` `/simulate` params() [auth]
+- `POST` `/simulate/save` params() [auth]
+- `GET` `/simulate/projection` params() [auth]
+- `GET` `/simulate/history` params() [auth]
+- `GET` `/stats/public` params()
+- `POST` `/support` params() [auth]
+- `GET` `/user/me` params() [auth]
+- `PUT` `/user/empresa` params() [auth]

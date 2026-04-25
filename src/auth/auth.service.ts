@@ -6,32 +6,81 @@ import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from '../user/schemas/user.schema';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { GoogleProfile } from './google.strategy';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-    private jwtService: JwtService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private jwtService: JwtService
   ) {}
 
   async register(dto: RegisterDto) {
-    const exists = await this.userModel.findOne({ email: dto.email });
+    const normalizedEmail = this.normalizeEmail(dto.email);
+    const exists = await this.userModel.findOne({ email: normalizedEmail });
     if (exists) throw new UnauthorizedException('Email já cadastrado');
     const hash = await bcrypt.hash(dto.password, 10);
     const user = await this.userModel.create({
-      email: dto.email,
+      email: normalizedEmail,
       password: hash,
       nome: dto.nome,
+      authenticationProvider: 'local',
     });
     return this.gerarToken(user);
   }
 
   async login(dto: LoginDto) {
-    const user = await this.userModel.findOne({ email: dto.email });
+    const normalizedEmail = this.normalizeEmail(dto.email);
+    const user = await this.userModel.findOne({ email: normalizedEmail });
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
     return this.gerarToken(user);
+  }
+
+  async loginOrRegisterWithGoogle(profile: GoogleProfile) {
+    if (!profile.emailVerified) {
+      throw new UnauthorizedException('Google email is not verified');
+    }
+
+    const normalizedEmail = this.normalizeEmail(profile.email);
+    const userWithGoogleAccount = await this.userModel.findOne({
+      googleId: profile.googleId,
+    });
+    if (userWithGoogleAccount) {
+      return this.gerarToken(userWithGoogleAccount);
+    }
+
+    const userWithSameEmail = await this.userModel.findOne({
+      email: normalizedEmail,
+    });
+    if (userWithSameEmail) {
+      userWithSameEmail.googleId = profile.googleId;
+      userWithSameEmail.emailVerified = true;
+      userWithSameEmail.avatarUrl =
+        profile.avatarUrl ?? userWithSameEmail.avatarUrl;
+      if (!userWithSameEmail.nome && profile.nome) {
+        userWithSameEmail.nome = profile.nome;
+      }
+      await userWithSameEmail.save();
+      return this.gerarToken(userWithSameEmail);
+    }
+
+    const generatedPassword = await bcrypt.hash(
+      this.generateRandomPassword(),
+      10
+    );
+    const createdUser = await this.userModel.create({
+      email: normalizedEmail,
+      password: generatedPassword,
+      nome: profile.nome,
+      googleId: profile.googleId,
+      emailVerified: true,
+      avatarUrl: profile.avatarUrl,
+      authenticationProvider: 'google',
+    });
+
+    return this.gerarToken(createdUser);
   }
 
   private gerarToken(user: UserDocument) {
@@ -55,5 +104,13 @@ export class AuthService {
         plano,
       },
     };
+  }
+
+  private normalizeEmail(rawEmail: string) {
+    return rawEmail.trim().toLowerCase();
+  }
+
+  private generateRandomPassword() {
+    return `${Date.now()}-${Math.random()}-${Math.random()}`;
   }
 }

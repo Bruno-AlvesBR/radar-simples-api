@@ -75,7 +75,7 @@ export const FiscalReminderPreferencesSchema = SchemaFactory.createForClass(
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true, trim: true, lowercase: true })
   email: string;
 
   @Prop({ required: true })
@@ -83,6 +83,21 @@ export class User {
 
   @Prop()
   nome: string;
+
+  @Prop({
+    enum: ['local', 'google'],
+    default: 'local',
+  })
+  authenticationProvider: 'local' | 'google';
+
+  @Prop({ unique: true, sparse: true })
+  googleId?: string;
+
+  @Prop({ default: false })
+  emailVerified?: boolean;
+
+  @Prop()
+  avatarUrl?: string;
 
   @Prop({ type: EmpresaSchema })
   empresa: Empresa;
