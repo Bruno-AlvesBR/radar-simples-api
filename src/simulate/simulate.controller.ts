@@ -4,6 +4,7 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { SimulateService } from './simulate.service';
 import { SimulateDto } from './dto/simulate.dto';
 import { ProjectionDto } from './dto/projection.dto';
+import { CompareSimulationsDto } from './dto/compare-simulations.dto';
 
 @Controller('simulate')
 export class SimulateController {
@@ -30,5 +31,11 @@ export class SimulateController {
   @UseGuards(JwtAuthGuard)
   history(@CurrentUser() user: { sub: string }) {
     return this.simulateService.getHistory(user.sub);
+  }
+
+  @Post('compare')
+  @UseGuards(JwtAuthGuard)
+  compare(@Body() dto: CompareSimulationsDto, @CurrentUser() user: { sub: string }) {
+    return this.simulateService.compare(dto, user.sub);
   }
 }

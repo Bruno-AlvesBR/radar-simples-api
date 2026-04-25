@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail()
@@ -10,4 +10,8 @@ export class RegisterDto {
 
   @IsString()
   nome: string;
+
+  @IsOptional()
+  @IsString()
+  referralCode?: string;
 }
