@@ -26,6 +26,10 @@ export class UserService {
       nome: user.nome,
       empresa: user.empresa,
       plano,
+      fiscalReminderPreferences: user.fiscalReminderPreferences ?? {
+        diasAntecedencia: [3, 7, 15],
+        ativo: false,
+      },
     };
   }
 
@@ -35,6 +39,53 @@ export class UserService {
       .select('-password')
       .lean();
     return user;
+  }
+
+  async atualizarPreferenciasLembretesFiscais(
+    userId: string,
+    preferences: {
+      diasAntecedencia?: number[];
+      ativo?: boolean;
+    }
+  ) {
+    const user = await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        {
+          fiscalReminderPreferences: {
+            diasAntecedencia: preferences.diasAntecedencia ?? [3, 7, 15],
+            ativo: preferences.ativo ?? true,
+          },
+        },
+        { new: true }
+      )
+      .select('-password')
+      .lean();
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user._id,
+      email: user.email,
+      nome: user.nome,
+      empresa: user.empresa,
+      plano: user.plano
+        ? {
+            titulo: user.plano.titulo,
+            slug: user.plano.slug,
+            valor: user.plano.valor,
+            ciclo: user.plano.ciclo,
+            dataAdmissao: user.plano.dataAdmissao,
+            dataVencimento: user.plano.dataVencimento,
+          }
+        : null,
+      fiscalReminderPreferences: user.fiscalReminderPreferences ?? {
+        diasAntecedencia: [3, 7, 15],
+        ativo: false,
+      },
+    };
   }
 
   private serializeUser(user: {

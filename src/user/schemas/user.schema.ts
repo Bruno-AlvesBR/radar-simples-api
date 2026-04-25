@@ -57,7 +57,21 @@ export class PlanoAssinatura {
   dataVencimento: Date;
 }
 
-export const PlanoAssinaturaSchema = SchemaFactory.createForClass(PlanoAssinatura);
+export const PlanoAssinaturaSchema =
+  SchemaFactory.createForClass(PlanoAssinatura);
+
+@Schema({ _id: false })
+export class FiscalReminderPreferences {
+  @Prop({ type: [Number], default: [3, 7, 15] })
+  diasAntecedencia: number[];
+
+  @Prop({ default: false })
+  ativo: boolean;
+}
+
+export const FiscalReminderPreferencesSchema = SchemaFactory.createForClass(
+  FiscalReminderPreferences
+);
 
 @Schema({ timestamps: true })
 export class User {
@@ -81,6 +95,15 @@ export class User {
 
   @Prop()
   stripeSubscriptionId?: string;
+
+  @Prop({
+    type: FiscalReminderPreferencesSchema,
+    default: {
+      diasAntecedencia: [3, 7, 15],
+      ativo: false,
+    },
+  })
+  fiscalReminderPreferences?: FiscalReminderPreferences;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
