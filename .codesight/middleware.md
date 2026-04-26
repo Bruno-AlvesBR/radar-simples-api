@@ -1,6 +1,8 @@
 # Middleware
 
 ## auth
+- auth-cookie.service — `src\auth\auth-cookie.service.ts`
+- auth.controller.spec — `src\auth\auth.controller.spec.ts`
 - auth.controller — `src\auth\auth.controller.ts`
 - auth.module — `src\auth\auth.module.ts`
 - auth.service.spec — `src\auth\auth.service.spec.ts`

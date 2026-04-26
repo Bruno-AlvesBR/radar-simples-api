@@ -2,7 +2,7 @@
 
 > **Navigation aid.** Schema shapes and field types extracted via AST. Read the actual schema source files before writing migrations or query logic.
 
-**mongoose** — 11 models
+**mongoose** — 15 models
 
 ### Article
 
@@ -34,6 +34,21 @@
 - `forbiddenTerms`: string[]
 - `writingStyle`: string
 
+### FiscalReminder
+
+- `userId`: string
+- `diasAntecedencia`: number[]
+- `ativo`: boolean
+- `ultimoEnvioEm`: date
+
+### InvoiceRecord
+
+- `userId`: string
+- `issueDate`: date
+- `amount`: number
+- `competenceMonth`: string
+- `sourceFileName`: string
+
 ### KeywordOpportunity
 
 - `keyword`: string
@@ -47,7 +62,20 @@
 
 - `email`: string
 - `origemCaptura`: string
+- `metadata`: record<string
 - `convertidoEmUsuario`: boolean
+
+### ReferralCode
+
+- `userId`: string
+- `code`: string
+
+### Referral
+
+- `referrerUserId`: string
+- `referredUserId`: string
+- `referredEmail`: string
+- `rewardApplied`: boolean
 
 ### SeoMetric
 
@@ -91,6 +119,8 @@
 - `valor`: number
 - `dataAdmissao`: date
 - `dataVencimento`: date
+- `pausadoAte`: date
+- `subscriptionFreeTrialPhaseEndsAt`: date
 - `diasAntecedencia`: number[]
 - `ativo`: boolean
 - `email`: string
@@ -104,6 +134,8 @@
 - `stripeCustomerId`: string
 - `stripeSubscriptionId`: string
 - `fiscalReminderPreferences`: fiscalreminderpreferences
+- `automaticSubscriptionRenewalCancelledAtPeriodEnd`: boolean
+- `subscriptionFreeTrialPreviouslyUsed`: boolean
 
 ### PlanoAssinatura
 
@@ -122,6 +154,8 @@
 - `valor`: number
 - `dataAdmissao`: date
 - `dataVencimento`: date
+- `pausadoAte`: date
+- `subscriptionFreeTrialPhaseEndsAt`: date
 - `diasAntecedencia`: number[]
 - `ativo`: boolean
 - `email`: string
@@ -135,6 +169,8 @@
 - `stripeCustomerId`: string
 - `stripeSubscriptionId`: string
 - `fiscalReminderPreferences`: fiscalreminderpreferences
+- `automaticSubscriptionRenewalCancelledAtPeriodEnd`: boolean
+- `subscriptionFreeTrialPreviouslyUsed`: boolean
 
 ### FiscalReminderPreferences
 
@@ -153,6 +189,8 @@
 - `valor`: number
 - `dataAdmissao`: date
 - `dataVencimento`: date
+- `pausadoAte`: date
+- `subscriptionFreeTrialPhaseEndsAt`: date
 - `diasAntecedencia`: number[]
 - `ativo`: boolean
 - `email`: string
@@ -166,6 +204,8 @@
 - `stripeCustomerId`: string
 - `stripeSubscriptionId`: string
 - `fiscalReminderPreferences`: fiscalreminderpreferences
+- `automaticSubscriptionRenewalCancelledAtPeriodEnd`: boolean
+- `subscriptionFreeTrialPreviouslyUsed`: boolean
 
 ### User
 
@@ -184,6 +224,8 @@
 - `valor`: number
 - `dataAdmissao`: date
 - `dataVencimento`: date
+- `pausadoAte`: date
+- `subscriptionFreeTrialPhaseEndsAt`: date
 - `diasAntecedencia`: number[]
 - `ativo`: boolean
 - `email`: string
@@ -197,6 +239,8 @@
 - `stripeCustomerId`: string
 - `stripeSubscriptionId`: string
 - `fiscalReminderPreferences`: fiscalreminderpreferences
+- `automaticSubscriptionRenewalCancelledAtPeriodEnd`: boolean
+- `subscriptionFreeTrialPreviouslyUsed`: boolean
 
 ## Schema Source Files
 

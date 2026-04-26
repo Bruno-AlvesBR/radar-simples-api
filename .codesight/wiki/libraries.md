@@ -2,11 +2,12 @@
 
 > **Navigation aid.** Library inventory extracted via AST. Read the source files listed here before modifying exported functions.
 
-**65 library files** across 16 modules
+**91 library files** across 21 modules
 
-## Auth (9 files)
+## Auth (10 files)
 
 - `src\auth\google.strategy.ts` — GoogleStrategy, GoogleProfile
+- `src\auth\auth-cookie.service.ts` — AuthCookieService
 - `src\auth\auth.controller.ts` — AuthController
 - `src\auth\auth.module.ts` — AuthModule
 - `src\auth\auth.service.ts` — AuthService
@@ -16,14 +17,35 @@
 - `src\auth\jwt-auth.guard.ts` — JwtAuthGuard
 - `src\auth\jwt.strategy.ts` — JwtStrategy
 
-## Simulate (6 files)
+## Checkout (8 files)
+
+- `src\checkout\plan-change.utils.ts` — buildCheckoutPlanSummary, determinePlanChangeType, getFeaturesGained, getFeaturesLost, getPlanIntervalInSeconds, CheckoutPlanSummary, …
+- `src\checkout\checkout.service.ts` — CheckoutService, UpgradeCheckoutSessionResponse, SubscriptionActionResult
+- `src\checkout\checkout-webhook.controller.ts` — CheckoutWebhookController
+- `src\checkout\checkout.controller.ts` — CheckoutController
+- `src\checkout\checkout.module.ts` — CheckoutModule
+- `src\checkout\dto\create-session.dto.ts` — CreateSessionDto
+- `src\checkout\dto\upgrade-preview.query-dto.ts` — UpgradePreviewQueryDto
+- `src\checkout\dto\upgrade-subscription.dto.ts` — UpgradeSubscriptionDto
+
+## Simulate (7 files)
 
 - `src\simulate\schemas\simulacao.schema.ts` — Simulacao, SimulacaoDocument, SimulacaoSchema
+- `src\simulate\dto\compare-simulations.dto.ts` — CompareSimulationScenarioDto, CompareSimulationsDto
 - `src\simulate\dto\projection.dto.ts` — ProjectionDto
 - `src\simulate\dto\simulate.dto.ts` — SimulateDto
 - `src\simulate\simulate.controller.ts` — SimulateController
 - `src\simulate\simulate.module.ts` — SimulateModule
 - `src\simulate\simulate.service.ts` — SimulateService
+
+## Fiscal-reminder (6 files)
+
+- `src\fiscal-reminder\fiscal-obligation.helper.ts` — isMeiCompany, getRelevantFiscalObligations, getNextDueDate, getDaysRemaining, buildFiscalObligations, FiscalObligationDefinition, …
+- `src\fiscal-reminder\schemas\fiscal-reminder.schema.ts` — FiscalReminder, FiscalReminderDocument, FiscalReminderSchema
+- `src\fiscal-reminder\fiscal-reminder.service.ts` — FiscalReminderService, FiscalReminderSummary
+- `src\fiscal-reminder\dto\update-fiscal-reminder.dto.ts` — UpdateFiscalReminderDto
+- `src\fiscal-reminder\fiscal-reminder.controller.ts` — FiscalReminderController
+- `src\fiscal-reminder\fiscal-reminder.module.ts` — FiscalReminderModule
 
 ## Blog (5 files)
 
@@ -33,13 +55,13 @@
 - `src\blog\blog.service.ts` — BlogService
 - `src\blog\dto\create-article.dto.ts` — CreateArticleDto
 
-## Checkout (5 files)
+## Invoice-import (5 files)
 
-- `src\checkout\checkout-webhook.controller.ts` — CheckoutWebhookController
-- `src\checkout\checkout.controller.ts` — CheckoutController
-- `src\checkout\checkout.module.ts` — CheckoutModule
-- `src\checkout\checkout.service.ts` — CheckoutService
-- `src\checkout\dto\create-session.dto.ts` — CreateSessionDto
+- `src\invoice-import\schemas\invoice-record.schema.ts` — InvoiceRecord, InvoiceRecordDocument, InvoiceRecordSchema
+- `src\invoice-import\invoice-import.helper.ts` — parseInvoiceRecords, ParsedInvoiceRecord
+- `src\invoice-import\invoice-import.service.ts` — InvoiceImportService, ImportedInvoiceSummary
+- `src\invoice-import\invoice-import.controller.ts` — InvoiceImportController
+- `src\invoice-import\invoice-import.module.ts` — InvoiceImportModule
 
 ## Leads (5 files)
 
@@ -48,6 +70,14 @@
 - `src\leads\leads.controller.ts` — LeadsController
 - `src\leads\leads.module.ts` — LeadsModule
 - `src\leads\leads.service.ts` — LeadsService
+
+## Referral (5 files)
+
+- `src\referral\schemas\referral-code.schema.ts` — ReferralCode, ReferralCodeDocument, ReferralCodeSchema
+- `src\referral\schemas\referral.schema.ts` — Referral, ReferralDocument, ReferralSchema
+- `src\referral\referral.controller.ts` — ReferralController
+- `src\referral\referral.module.ts` — ReferralModule
+- `src\referral\referral.service.ts` — ReferralService
 
 ## Support (5 files)
 
@@ -63,13 +93,6 @@
 - `src\content-generation\content-generation.controller.ts` — ContentGenerationController
 - `src\content-generation\content-generation.module.ts` — ContentGenerationModule
 - `src\content-generation\content-generation.service.ts` — ContentGenerationService
-
-## Fiscal-reminder (4 files)
-
-- `src\fiscal-reminder\fiscal-reminder.service.ts` — FiscalReminderService, FiscalObligationSummaryItem, FiscalReminderSummary
-- `src\fiscal-reminder\dto\update-fiscal-reminder.dto.ts` — UpdateFiscalReminderDto
-- `src\fiscal-reminder\fiscal-reminder.controller.ts` — FiscalReminderController
-- `src\fiscal-reminder\fiscal-reminder.module.ts` — FiscalReminderModule
 
 ## Keyword-research (4 files)
 
@@ -88,15 +111,33 @@
 ## User (4 files)
 
 - `src\user\schemas\user.schema.ts` — Empresa, PlanoAssinatura, FiscalReminderPreferences, User, UserDocument, EmpresaSchema, …
+- `src\user\user.service.ts` — UserService, UserOnboardingStatusPayload, UserMonthlyClosingSummaryPayload
 - `src\user\user.controller.ts` — UserController
 - `src\user\user.module.ts` — UserModule
-- `src\user\user.service.ts` — UserService
 
 ## Cnpj (3 files)
 
 - `src\cnpj\cnpj.controller.ts` — CnpjController
 - `src\cnpj\cnpj.module.ts` — CnpjModule
 - `src\cnpj\cnpj.service.ts` — CnpjService
+
+## Email (3 files)
+
+- `src\email\email.templates.ts` — buildSupportTicketEmail, buildUserRegistrationEmail, buildPlanSubscriptionEmail, buildCheckoutConfirmationEmail, buildPlanCancellationEmail, buildPlanUpgradeEmail, …
+- `src\email\email.module.ts` — EmailModule
+- `src\email\email.service.ts` — EmailService
+
+## Engine (3 files)
+
+- `src\engine\simples-nacional.engine.ts` — calculateFatorR, getAnexoAplicavel, calculateAliquotaEfetiva, calculateDas, calculateProLaboreMinimo, calculateLucroDistribuivel, …
+- `src\engine\engine.controller.ts` — EngineController
+- `src\engine\engine.module.ts` — EngineModule
+
+## Reports (3 files)
+
+- `src\reports\reports.service.ts` — ReportsService, MonthlyReportSimulationItem, MonthlyReportSummary
+- `src\reports\reports.controller.ts` — ReportsController
+- `src\reports\reports.module.ts` — ReportsModule
 
 ## Stats (3 files)
 
@@ -113,9 +154,9 @@
 
 - `src\app.module.ts` — AppModule
 
-## Engine (1 files)
+## Plans (1 files)
 
-- `src\engine\simples-nacional.engine.ts` — calculateFatorR, getAnexoAplicavel, calculateAliquotaEfetiva, calculateDas, calculateProLaboreMinimo, calculateLucroDistribuivel, …
+- `src\plans\plan.constants.ts` — normalizePlanSlug, getPlanDefinition, isPlanAtLeast, getPlanDisplayName, getPlanFeatures, PlanDefinition, …
 
 ---
 _Back to [overview.md](./overview.md)_

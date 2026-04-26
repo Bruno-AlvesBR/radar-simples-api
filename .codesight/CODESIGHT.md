@@ -2,45 +2,60 @@
 
 > **Stack:** nestjs | mongoose | unknown | typescript
 
-> 31 routes | 11 models | 0 components | 65 lib files | 19 env vars | 8 middleware | 5% test coverage
-> **Token savings:** this file is ~4.500 tokens. Without it, AI exploration would cost ~51.000 tokens. **Saves ~46.500 tokens per conversation.**
-> **Last scanned:** 2026-04-25 20:31 — re-run after significant changes
+> 46 routes | 15 models | 0 components | 91 lib files | 19 env vars | 10 middleware | 38% test coverage
+> **Token savings:** this file is ~6.300 tokens. Without it, AI exploration would cost ~67.600 tokens. **Saves ~61.300 tokens per conversation.**
+> **Last scanned:** 2026-04-26 05:01 — re-run after significant changes
 
 ---
 
 # Routes
 
-- `POST` `/auth/register` params() [auth]
-- `POST` `/auth/login` params() [auth]
-- `GET` `/auth/google` params() [auth]
-- `GET` `/auth/google/callback` params() [auth]
+- `POST` `/auth/register` params() [auth] ✓
+- `POST` `/auth/login` params() [auth] ✓
+- `POST` `/auth/logout` params() [auth] ✓
+- `GET` `/auth/google` params() [auth] ✓
+- `GET` `/auth/google/callback` params() [auth] ✓
 - `GET` `/blog/public` params()
 - `GET` `/blog/public/:slug` params(slug)
 - `POST` `/blog` params()
 - `GET` `/blog/sitemap.xml` params()
 - `POST` `/checkout/webhook` params() [payment]
 - `GET` `/checkout/confirm` params() [auth, payment]
+- `GET` `/checkout/upgrade/preview` params() [auth, payment]
+- `POST` `/checkout/upgrade` params() [auth, payment]
+- `POST` `/checkout/upgrade/session` params() [auth, payment]
+- `POST` `/checkout/pause` params() [auth, payment]
 - `POST` `/checkout/cancel` params() [auth, payment]
 - `POST` `/checkout/session` params() [auth, payment]
 - `GET` `/cnpj/:cnpj` params(cnpj) [auth]
 - `POST` `/content-generation/brand-voice/default` params()
 - `POST` `/content-generation/draft/generate` params()
+- `GET` `/engine/metadata` params()
 - `GET` `/fiscal-reminders/summary` params() [auth]
 - `PUT` `/fiscal-reminders/summary` params() [auth]
+- `POST` `/invoice-import/upload` params() [auth, upload]
+- `GET` `/invoice-import/summary` params() [auth, upload]
 - `GET` `/keyword-research` params()
 - `POST` `/keyword-research/collect` params()
 - `GET` `/keyword-research/best-next` params()
 - `POST` `/leads` params()
+- `GET` `/leads/stats` params()
+- `GET` `/referral/code` params() [auth]
+- `GET` `/referral/stats` params() [auth]
+- `GET` `/reports/monthly` params() [auth]
 - `POST` `/seo-monitoring/metrics` params()
 - `GET` `/seo-monitoring/dashboard` params()
-- `POST` `/simulate` params() [auth]
-- `POST` `/simulate/save` params() [auth]
-- `GET` `/simulate/projection` params() [auth]
-- `GET` `/simulate/history` params() [auth]
+- `POST` `/simulate` params() [auth] ✓
+- `POST` `/simulate/save` params() [auth] ✓
+- `GET` `/simulate/projection` params() [auth] ✓
+- `GET` `/simulate/history` params() [auth] ✓
+- `POST` `/simulate/compare` params() [auth] ✓
 - `GET` `/stats/public` params()
 - `POST` `/support` params() [auth]
-- `GET` `/user/me` params() [auth]
-- `PUT` `/user/empresa` params() [auth]
+- `GET` `/user/me` params() [auth] ✓
+- `PUT` `/user/empresa` params() [auth] ✓
+- `GET` `/user/onboarding-status` params() [auth] ✓
+- `GET` `/user/monthly-closing-summary` params() [auth] ✓
 
 ---
 
@@ -74,6 +89,19 @@
 - forbiddenTerms: string[]
 - writingStyle: string
 
+### FiscalReminder
+- userId: string
+- diasAntecedencia: number[]
+- ativo: boolean
+- ultimoEnvioEm: date
+
+### InvoiceRecord
+- userId: string
+- issueDate: date
+- amount: number
+- competenceMonth: string
+- sourceFileName: string
+
 ### KeywordOpportunity
 - keyword: string
 - searchVolume: number
@@ -85,7 +113,18 @@
 ### Lead
 - email: string
 - origemCaptura: string
+- metadata: record<string
 - convertidoEmUsuario: boolean
+
+### ReferralCode
+- userId: string
+- code: string
+
+### Referral
+- referrerUserId: string
+- referredUserId: string
+- referredEmail: string
+- rewardApplied: boolean
 
 ### SeoMetric
 - pageUrl: string
@@ -125,6 +164,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -138,6 +179,8 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
 
 ### PlanoAssinatura
 - cnpj: string
@@ -155,6 +198,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -168,6 +213,8 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
 
 ### FiscalReminderPreferences
 - cnpj: string
@@ -185,6 +232,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -198,6 +247,8 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
 
 ### User
 - cnpj: string
@@ -215,6 +266,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -228,12 +281,15 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
 
 ---
 
 # Libraries
 
 - `src\app.module.ts` — class AppModule
+- `src\auth\auth-cookie.service.ts` — class AuthCookieService
 - `src\auth\auth.controller.ts` — class AuthController
 - `src\auth\auth.module.ts` — class AuthModule
 - `src\auth\auth.service.ts` — class AuthService
@@ -256,8 +312,21 @@
 - `src\checkout\checkout-webhook.controller.ts` — class CheckoutWebhookController
 - `src\checkout\checkout.controller.ts` — class CheckoutController
 - `src\checkout\checkout.module.ts` — class CheckoutModule
-- `src\checkout\checkout.service.ts` — class CheckoutService
+- `src\checkout\checkout.service.ts`
+  - class CheckoutService
+  - interface UpgradeCheckoutSessionResponse
+  - interface SubscriptionActionResult
 - `src\checkout\dto\create-session.dto.ts` — class CreateSessionDto
+- `src\checkout\dto\upgrade-preview.query-dto.ts` — class UpgradePreviewQueryDto
+- `src\checkout\dto\upgrade-subscription.dto.ts` — class UpgradeSubscriptionDto
+- `src\checkout\plan-change.utils.ts`
+  - function buildCheckoutPlanSummary: (planSlug, cycle, valorOverride?) => CheckoutPlanSummary
+  - function determinePlanChangeType: (currentPlanSlug, nextPlanSlug, currentCycle, nextCycle) => PlanChangeType
+  - function getFeaturesGained: (currentPlanSlug, nextPlanSlug) => void
+  - function getFeaturesLost: (currentPlanSlug, nextPlanSlug) => void
+  - function getPlanIntervalInSeconds: (cycle) => void
+  - interface CheckoutPlanSummary
+  - _...3 more_
 - `src\cnpj\cnpj.controller.ts` — class CnpjController
 - `src\cnpj\cnpj.module.ts` — class CnpjModule
 - `src\cnpj\cnpj.service.ts` — class CnpjService
@@ -268,6 +337,18 @@
   - class BrandVoice
   - type BrandVoiceDocument
   - const BrandVoiceSchema
+- `src\email\email.module.ts` — class EmailModule
+- `src\email\email.service.ts` — class EmailService
+- `src\email\email.templates.ts`
+  - function buildSupportTicketEmail: (payload) => EmailTemplateResult
+  - function buildUserRegistrationEmail: (payload) => EmailTemplateResult
+  - function buildPlanSubscriptionEmail: (payload) => EmailTemplateResult
+  - function buildCheckoutConfirmationEmail: (payload) => EmailTemplateResult
+  - function buildPlanCancellationEmail: (payload) => EmailTemplateResult
+  - function buildPlanUpgradeEmail: (payload) => EmailTemplateResult
+  - _...2 more_
+- `src\engine\engine.controller.ts` — class EngineController
+- `src\engine\engine.module.ts` — class EngineModule
 - `src\engine\simples-nacional.engine.ts`
   - function calculateFatorR: (folhaPagamento, proLabore, faturamentoMensal) => number
   - function getAnexoAplicavel: (fatorR) => 'III' | 'V'
@@ -277,12 +358,29 @@
   - function calculateLucroDistribuivel: (faturamentoMensal, das, folhaPagamento, proLabore) => number
   - _...3 more_
 - `src\fiscal-reminder\dto\update-fiscal-reminder.dto.ts` — class UpdateFiscalReminderDto
+- `src\fiscal-reminder\fiscal-obligation.helper.ts`
+  - function isMeiCompany: (company) => void
+  - function getRelevantFiscalObligations: (company) => void
+  - function getNextDueDate: (referenceDate, definition) => void
+  - function getDaysRemaining: (referenceDate, dueDate) => void
+  - function buildFiscalObligations: (referenceDate, company) => void
+  - interface FiscalObligationDefinition
+  - _...3 more_
 - `src\fiscal-reminder\fiscal-reminder.controller.ts` — class FiscalReminderController
 - `src\fiscal-reminder\fiscal-reminder.module.ts` — class FiscalReminderModule
-- `src\fiscal-reminder\fiscal-reminder.service.ts`
-  - class FiscalReminderService
-  - interface FiscalObligationSummaryItem
-  - interface FiscalReminderSummary
+- `src\fiscal-reminder\fiscal-reminder.service.ts` — class FiscalReminderService, interface FiscalReminderSummary
+- `src\fiscal-reminder\schemas\fiscal-reminder.schema.ts`
+  - class FiscalReminder
+  - type FiscalReminderDocument
+  - const FiscalReminderSchema
+- `src\invoice-import\invoice-import.controller.ts` — class InvoiceImportController
+- `src\invoice-import\invoice-import.helper.ts` — function parseInvoiceRecords: (fileBuffer, fileName?) => void, interface ParsedInvoiceRecord
+- `src\invoice-import\invoice-import.module.ts` — class InvoiceImportModule
+- `src\invoice-import\invoice-import.service.ts` — class InvoiceImportService, interface ImportedInvoiceSummary
+- `src\invoice-import\schemas\invoice-record.schema.ts`
+  - class InvoiceRecord
+  - type InvoiceRecordDocument
+  - const InvoiceRecordSchema
 - `src\keyword-research\keyword-research.controller.ts` — class KeywordResearchController
 - `src\keyword-research\keyword-research.module.ts` — class KeywordResearchModule
 - `src\keyword-research\keyword-research.service.ts` — class KeywordResearchService
@@ -298,6 +396,31 @@
   - class Lead
   - type LeadDocument
   - const LeadSchema
+- `src\plans\plan.constants.ts`
+  - function normalizePlanSlug: (planSlug) => PlanSlug | null
+  - function getPlanDefinition: (planSlug) => void
+  - function isPlanAtLeast: (planSlug, requiredPlanSlug) => void
+  - function getPlanDisplayName: (planSlug) => void
+  - function getPlanFeatures: (planSlug) => void
+  - interface PlanDefinition
+  - _...4 more_
+- `src\referral\referral.controller.ts` — class ReferralController
+- `src\referral\referral.module.ts` — class ReferralModule
+- `src\referral\referral.service.ts` — class ReferralService
+- `src\referral\schemas\referral-code.schema.ts`
+  - class ReferralCode
+  - type ReferralCodeDocument
+  - const ReferralCodeSchema
+- `src\referral\schemas\referral.schema.ts`
+  - class Referral
+  - type ReferralDocument
+  - const ReferralSchema
+- `src\reports\reports.controller.ts` — class ReportsController
+- `src\reports\reports.module.ts` — class ReportsModule
+- `src\reports\reports.service.ts`
+  - class ReportsService
+  - interface MonthlyReportSimulationItem
+  - interface MonthlyReportSummary
 - `src\seo-autopilot\seo-autopilot.module.ts` — class SeoAutopilotModule
 - `src\seo-autopilot\seo-autopilot.service.ts` — class SeoAutopilotService
 - `src\seo-monitoring\schemas\seo-metric.schema.ts`
@@ -307,6 +430,7 @@
 - `src\seo-monitoring\seo-monitoring.controller.ts` — class SeoMonitoringController
 - `src\seo-monitoring\seo-monitoring.module.ts` — class SeoMonitoringModule
 - `src\seo-monitoring\seo-monitoring.service.ts` — class SeoMonitoringService
+- `src\simulate\dto\compare-simulations.dto.ts` — class CompareSimulationScenarioDto, class CompareSimulationsDto
 - `src\simulate\dto\projection.dto.ts` — class ProjectionDto
 - `src\simulate\dto\simulate.dto.ts` — class SimulateDto
 - `src\simulate\schemas\simulacao.schema.ts`
@@ -337,7 +461,10 @@
   - _...3 more_
 - `src\user\user.controller.ts` — class UserController
 - `src\user\user.module.ts` — class UserModule
-- `src\user\user.service.ts` — class UserService
+- `src\user\user.service.ts`
+  - class UserService
+  - interface UserOnboardingStatusPayload
+  - interface UserMonthlyClosingSummaryPayload
 
 ---
 
@@ -355,13 +482,13 @@
 - `PORT` (has default) — .env.example
 - `RESEND_API_KEY` (has default) — .env
 - `SEO_AUTOPILOT_MONGODB_URI` **required** — src\seo-autopilot\seo-autopilot-runner.ts
-- `SMTP_FROM_ADDRESS` (has default) — .env
-- `SMTP_FROM_NAME` (has default) — .env
-- `SMTP_HOST` (has default) — .env
-- `SMTP_PASSWORD` (has default) — .env
-- `SMTP_PORT` (has default) — .env
+- `SMTP_FROM_ADDRESS` **required** — .env.example
+- `SMTP_FROM_NAME` **required** — .env.example
+- `SMTP_HOST` **required** — .env.example
+- `SMTP_PASSWORD` **required** — .env.example
+- `SMTP_PORT` **required** — .env.example
 - `SMTP_SECURE` (has default) — .env
-- `SMTP_USER` (has default) — .env
+- `SMTP_USER` **required** — .env.example
 - `STRIPE_SECRET_KEY` (has default) — .env.example
 - `STRIPE_WEBHOOK_SECRET` (has default) — .env.example
 
@@ -383,6 +510,8 @@
 # Middleware
 
 ## auth
+- auth-cookie.service — `src\auth\auth-cookie.service.ts`
+- auth.controller.spec — `src\auth\auth.controller.spec.ts`
 - auth.controller — `src\auth\auth.controller.ts`
 - auth.module — `src\auth\auth.module.ts`
 - auth.service.spec — `src\auth\auth.service.spec.ts`
@@ -398,49 +527,73 @@
 
 ## Most Imported Files (change these carefully)
 
+- `src\auth\jwt-auth.guard.ts` — imported by **9** files
+- `src\auth\current-user.decorator.ts` — imported by **8** files
+- `src\user\user.service.ts` — imported by **8** files
+- `src\auth\auth.module.ts` — imported by **7** files
 - `src\user\schemas\user.schema.ts` — imported by **7** files
-- `src\auth\jwt-auth.guard.ts` — imported by **6** files
-- `src\auth\auth.module.ts` — imported by **5** files
-- `src\auth\current-user.decorator.ts` — imported by **5** files
+- `src\plans\plan.constants.ts` — imported by **6** files
+- `src\user\user.module.ts` — imported by **5** files
+- `src\referral\referral.service.ts` — imported by **5** files
+- `src\auth\auth.service.ts` — imported by **4** files
 - `src\auth\google.strategy.ts` — imported by **4** files
+- `src\email\email.service.ts` — imported by **4** files
 - `src\blog\blog.service.ts` — imported by **4** files
+- `src\checkout\checkout.service.ts` — imported by **4** files
 - `src\keyword-research\keyword-research.service.ts` — imported by **4** files
-- `src\user\user.service.ts` — imported by **4** files
-- `src\user\user.module.ts` — imported by **3** files
+- `src\fiscal-reminder\fiscal-reminder.service.ts` — imported by **4** files
+- `src\simulate\simulate.service.ts` — imported by **4** files
 - `src\blog\blog.module.ts` — imported by **3** files
 - `src\keyword-research\keyword-research.module.ts` — imported by **3** files
-- `src\auth\auth.service.ts` — imported by **3** files
-- `src\checkout\checkout.service.ts` — imported by **3** files
-- `src\content-generation\content-generation.service.ts` — imported by **3** files
-- `src\content-generation\content-generation.module.ts` — imported by **2** files
-- `src\auth\dto\login.dto.ts` — imported by **2** files
-- `src\auth\dto\register.dto.ts` — imported by **2** files
-- `src\auth\google-auth.guard.ts` — imported by **2** files
-- `src\blog\dto\create-article.dto.ts` — imported by **2** files
-- `src\cnpj\cnpj.service.ts` — imported by **2** files
+- `src\referral\referral.module.ts` — imported by **3** files
+- `src\auth\auth-cookie.service.ts` — imported by **3** files
 
 ## Import Map (who imports what)
 
+- `src\auth\jwt-auth.guard.ts` ← `src\checkout\checkout.controller.ts`, `src\cnpj\cnpj.controller.ts`, `src\fiscal-reminder\fiscal-reminder.controller.ts`, `src\invoice-import\invoice-import.controller.ts`, `src\referral\referral.controller.ts` +4 more
+- `src\auth\current-user.decorator.ts` ← `src\checkout\checkout.controller.ts`, `src\fiscal-reminder\fiscal-reminder.controller.ts`, `src\invoice-import\invoice-import.controller.ts`, `src\referral\referral.controller.ts`, `src\reports\reports.controller.ts` +3 more
+- `src\user\user.service.ts` ← `src\fiscal-reminder\fiscal-reminder.service.ts`, `src\invoice-import\invoice-import.service.ts`, `src\reports\reports.service.ts`, `src\simulate\simulate.service.ts`, `src\user\user.controller.spec.ts` +3 more
+- `src\auth\auth.module.ts` ← `src\app.module.ts`, `src\checkout\checkout.module.ts`, `src\referral\referral.module.ts`, `src\reports\reports.module.ts`, `src\simulate\simulate.module.ts` +2 more
 - `src\user\schemas\user.schema.ts` ← `src\auth\auth.module.ts`, `src\auth\auth.service.ts`, `src\checkout\checkout.module.ts`, `src\stats\stats.module.ts`, `src\stats\stats.service.ts` +2 more
-- `src\auth\jwt-auth.guard.ts` ← `src\checkout\checkout.controller.ts`, `src\cnpj\cnpj.controller.ts`, `src\fiscal-reminder\fiscal-reminder.controller.ts`, `src\simulate\simulate.controller.ts`, `src\support\support.controller.ts` +1 more
-- `src\auth\auth.module.ts` ← `src\app.module.ts`, `src\checkout\checkout.module.ts`, `src\simulate\simulate.module.ts`, `src\support\support.module.ts`, `src\user\user.module.ts`
-- `src\auth\current-user.decorator.ts` ← `src\checkout\checkout.controller.ts`, `src\fiscal-reminder\fiscal-reminder.controller.ts`, `src\simulate\simulate.controller.ts`, `src\support\support.controller.ts`, `src\user\user.controller.ts`
+- `src\plans\plan.constants.ts` ← `src\auth\auth.service.ts`, `src\fiscal-reminder\fiscal-reminder.service.ts`, `src\invoice-import\invoice-import.service.ts`, `src\reports\reports.service.ts`, `src\simulate\simulate.service.ts` +1 more
+- `src\user\user.module.ts` ← `src\app.module.ts`, `src\fiscal-reminder\fiscal-reminder.module.ts`, `src\invoice-import\invoice-import.module.ts`, `src\reports\reports.module.ts`, `src\simulate\simulate.module.ts`
+- `src\referral\referral.service.ts` ← `src\auth\auth.service.ts`, `src\checkout\checkout.service.ts`, `src\referral\referral.controller.ts`, `src\referral\referral.module.ts`, `src\referral\referral.service.spec.ts`
+- `src\auth\auth.service.ts` ← `src\auth\auth.controller.spec.ts`, `src\auth\auth.controller.ts`, `src\auth\auth.module.ts`, `src\auth\auth.service.spec.ts`
 - `src\auth\google.strategy.ts` ← `src\auth\auth.controller.ts`, `src\auth\auth.module.ts`, `src\auth\auth.service.spec.ts`, `src\auth\auth.service.ts`
-- `src\blog\blog.service.ts` ← `src\blog\blog.controller.ts`, `src\blog\blog.module.ts`, `src\content-generation\content-generation.service.ts`, `src\seo-autopilot\seo-autopilot.service.ts`
-- `src\keyword-research\keyword-research.service.ts` ← `src\content-generation\content-generation.service.ts`, `src\keyword-research\keyword-research.controller.ts`, `src\keyword-research\keyword-research.module.ts`, `src\seo-autopilot\seo-autopilot.service.ts`
-- `src\user\user.service.ts` ← `src\fiscal-reminder\fiscal-reminder.service.ts`, `src\simulate\simulate.service.ts`, `src\user\user.controller.ts`, `src\user\user.module.ts`
-- `src\user\user.module.ts` ← `src\app.module.ts`, `src\fiscal-reminder\fiscal-reminder.module.ts`, `src\simulate\simulate.module.ts`
-- `src\blog\blog.module.ts` ← `src\app.module.ts`, `src\content-generation\content-generation.module.ts`, `src\seo-autopilot\seo-autopilot.module.ts`
 
 ---
 
 # Test Coverage
 
-> **5%** of routes and models are covered by tests
-> 2 test files found
+> **38%** of routes and models are covered by tests
+> 21 test files found
+
+## Covered Routes
+
+- POST:/auth/register
+- POST:/auth/login
+- POST:/auth/logout
+- GET:/auth/google
+- GET:/auth/google/callback
+- POST:/simulate
+- POST:/simulate/save
+- GET:/simulate/projection
+- GET:/simulate/history
+- POST:/simulate/compare
+- GET:/user/me
+- PUT:/user/empresa
+- GET:/user/onboarding-status
+- GET:/user/monthly-closing-summary
 
 ## Covered Models
 
+- FiscalReminder
+- InvoiceRecord
+- Lead
+- ReferralCode
+- Referral
+- Simulacao
+- SupportTicket
 - Empresa
 - User
 

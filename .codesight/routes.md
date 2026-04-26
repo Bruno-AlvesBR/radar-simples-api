@@ -1,33 +1,48 @@
 # Routes
 
-- `POST` `/auth/register` params() [auth]
-- `POST` `/auth/login` params() [auth]
-- `GET` `/auth/google` params() [auth]
-- `GET` `/auth/google/callback` params() [auth]
+- `POST` `/auth/register` params() [auth] ✓
+- `POST` `/auth/login` params() [auth] ✓
+- `POST` `/auth/logout` params() [auth] ✓
+- `GET` `/auth/google` params() [auth] ✓
+- `GET` `/auth/google/callback` params() [auth] ✓
 - `GET` `/blog/public` params()
 - `GET` `/blog/public/:slug` params(slug)
 - `POST` `/blog` params()
 - `GET` `/blog/sitemap.xml` params()
 - `POST` `/checkout/webhook` params() [payment]
 - `GET` `/checkout/confirm` params() [auth, payment]
+- `GET` `/checkout/upgrade/preview` params() [auth, payment]
+- `POST` `/checkout/upgrade` params() [auth, payment]
+- `POST` `/checkout/upgrade/session` params() [auth, payment]
+- `POST` `/checkout/pause` params() [auth, payment]
 - `POST` `/checkout/cancel` params() [auth, payment]
 - `POST` `/checkout/session` params() [auth, payment]
 - `GET` `/cnpj/:cnpj` params(cnpj) [auth]
 - `POST` `/content-generation/brand-voice/default` params()
 - `POST` `/content-generation/draft/generate` params()
+- `GET` `/engine/metadata` params()
 - `GET` `/fiscal-reminders/summary` params() [auth]
 - `PUT` `/fiscal-reminders/summary` params() [auth]
+- `POST` `/invoice-import/upload` params() [auth, upload]
+- `GET` `/invoice-import/summary` params() [auth, upload]
 - `GET` `/keyword-research` params()
 - `POST` `/keyword-research/collect` params()
 - `GET` `/keyword-research/best-next` params()
 - `POST` `/leads` params()
+- `GET` `/leads/stats` params()
+- `GET` `/referral/code` params() [auth]
+- `GET` `/referral/stats` params() [auth]
+- `GET` `/reports/monthly` params() [auth]
 - `POST` `/seo-monitoring/metrics` params()
 - `GET` `/seo-monitoring/dashboard` params()
-- `POST` `/simulate` params() [auth]
-- `POST` `/simulate/save` params() [auth]
-- `GET` `/simulate/projection` params() [auth]
-- `GET` `/simulate/history` params() [auth]
+- `POST` `/simulate` params() [auth] ✓
+- `POST` `/simulate/save` params() [auth] ✓
+- `GET` `/simulate/projection` params() [auth] ✓
+- `GET` `/simulate/history` params() [auth] ✓
+- `POST` `/simulate/compare` params() [auth] ✓
 - `GET` `/stats/public` params()
 - `POST` `/support` params() [auth]
-- `GET` `/user/me` params() [auth]
-- `PUT` `/user/empresa` params() [auth]
+- `GET` `/user/me` params() [auth] ✓
+- `PUT` `/user/empresa` params() [auth] ✓
+- `GET` `/user/onboarding-status` params() [auth] ✓
+- `GET` `/user/monthly-closing-summary` params() [auth] ✓

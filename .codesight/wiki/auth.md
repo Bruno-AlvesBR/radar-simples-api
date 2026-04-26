@@ -2,13 +2,15 @@
 
 > **Navigation aid.** Route list and file locations extracted via AST. Read the source files listed below before implementing or modifying this subsystem.
 
-The Auth subsystem handles **5 routes** and touches: auth, payment.
+The Auth subsystem handles **6 routes** and touches: auth, payment.
 
 ## Routes
 
 - `POST` `/auth/register` [auth]
   `src\auth\auth.controller.ts`
 - `POST` `/auth/login` [auth]
+  `src\auth\auth.controller.ts`
+- `POST` `/auth/logout` [auth]
   `src\auth\auth.controller.ts`
 - `GET` `/auth/google` [auth]
   `src\auth\auth.controller.ts`
@@ -19,6 +21,8 @@ The Auth subsystem handles **5 routes** and touches: auth, payment.
 
 ## Middleware
 
+- **auth-cookie.service** (auth) — `src\auth\auth-cookie.service.ts`
+- **auth.controller.spec** (auth) — `src\auth\auth.controller.spec.ts`
 - **auth.controller** (auth) — `src\auth\auth.controller.ts`
 - **auth.module** (auth) — `src\auth\auth.module.ts`
 - **auth.service.spec** (auth) — `src\auth\auth.service.spec.ts`

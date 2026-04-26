@@ -12,13 +12,13 @@
 - `PORT` (has default) — .env.example
 - `RESEND_API_KEY` (has default) — .env
 - `SEO_AUTOPILOT_MONGODB_URI` **required** — src\seo-autopilot\seo-autopilot-runner.ts
-- `SMTP_FROM_ADDRESS` (has default) — .env
-- `SMTP_FROM_NAME` (has default) — .env
-- `SMTP_HOST` (has default) — .env
-- `SMTP_PASSWORD` (has default) — .env
-- `SMTP_PORT` (has default) — .env
+- `SMTP_FROM_ADDRESS` **required** — .env.example
+- `SMTP_FROM_NAME` **required** — .env.example
+- `SMTP_HOST` **required** — .env.example
+- `SMTP_PASSWORD` **required** — .env.example
+- `SMTP_PORT` **required** — .env.example
 - `SMTP_SECURE` (has default) — .env
-- `SMTP_USER` (has default) — .env
+- `SMTP_USER` **required** — .env.example
 - `STRIPE_SECRET_KEY` (has default) — .env.example
 - `STRIPE_WEBHOOK_SECRET` (has default) — .env.example
 

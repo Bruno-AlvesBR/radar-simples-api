@@ -28,6 +28,19 @@
 - forbiddenTerms: string[]
 - writingStyle: string
 
+### FiscalReminder
+- userId: string
+- diasAntecedencia: number[]
+- ativo: boolean
+- ultimoEnvioEm: date
+
+### InvoiceRecord
+- userId: string
+- issueDate: date
+- amount: number
+- competenceMonth: string
+- sourceFileName: string
+
 ### KeywordOpportunity
 - keyword: string
 - searchVolume: number
@@ -39,7 +52,18 @@
 ### Lead
 - email: string
 - origemCaptura: string
+- metadata: record<string
 - convertidoEmUsuario: boolean
+
+### ReferralCode
+- userId: string
+- code: string
+
+### Referral
+- referrerUserId: string
+- referredUserId: string
+- referredEmail: string
+- rewardApplied: boolean
 
 ### SeoMetric
 - pageUrl: string
@@ -79,6 +103,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -92,6 +118,8 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
 
 ### PlanoAssinatura
 - cnpj: string
@@ -109,6 +137,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -122,6 +152,8 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
 
 ### FiscalReminderPreferences
 - cnpj: string
@@ -139,6 +171,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -152,6 +186,8 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
 
 ### User
 - cnpj: string
@@ -169,6 +205,8 @@
 - valor: number
 - dataAdmissao: date
 - dataVencimento: date
+- pausadoAte: date
+- subscriptionFreeTrialPhaseEndsAt: date
 - diasAntecedencia: number[]
 - ativo: boolean
 - email: string
@@ -182,3 +220,5 @@
 - stripeCustomerId: string
 - stripeSubscriptionId: string
 - fiscalReminderPreferences: fiscalreminderpreferences
+- automaticSubscriptionRenewalCancelledAtPeriodEnd: boolean
+- subscriptionFreeTrialPreviouslyUsed: boolean
