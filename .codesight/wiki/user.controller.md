@@ -2,13 +2,17 @@
 
 > **Navigation aid.** Route list and file locations extracted via AST. Read the source files listed below before implementing or modifying this subsystem.
 
-The User.controller subsystem handles **2 routes** and touches: auth.
+The User.controller subsystem handles **4 routes** and touches: auth.
 
 ## Routes
 
 - `GET` `/user/me` [auth]
   `src\user\user.controller.ts`
 - `PUT` `/user/empresa` [auth]
+  `src\user\user.controller.ts`
+- `GET` `/user/onboarding-status` [auth]
+  `src\user\user.controller.ts`
+- `GET` `/user/monthly-closing-summary` [auth]
   `src\user\user.controller.ts`
 
 ## Source Files

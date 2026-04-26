@@ -1,113 +1,266 @@
-import { Injectable } from '@nestjs/common';
+import {
+    ForbiddenException,
+    Inject,
+    Injectable,
+    forwardRef,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { Model } from 'mongoose';
+import { EmailService } from '../email/email.service';
+import { isPlanAtLeast, normalizePlanSlug, PlanSlug } from '../plans/plan.constants';
 import { UserService } from '../user/user.service';
-
-export interface FiscalObligationSummaryItem {
-  kind: string;
-  name: string;
-  dueDate: string;
-  daysRemaining: number;
-}
+import { UpdateFiscalReminderDto } from './dto/update-fiscal-reminder.dto';
+import {
+    buildFiscalObligations,
+    FiscalObligationResult,
+} from './fiscal-obligation.helper';
+import {
+    FiscalReminder,
+    FiscalReminderDocument,
+} from './schemas/fiscal-reminder.schema';
 
 export interface FiscalReminderSummary {
-  accessAllowed: boolean;
-  planSlug: string | null;
-  diasAntecedenciaPermitidos: number[];
-  diasAntecedenciaSelecionados: number[];
-  obrigacoesProximas: FiscalObligationSummaryItem[];
+    accessAllowed: boolean;
+    planSlug: PlanSlug | null;
+    diasAntecedenciaPermitidos: number[];
+    diasAntecedenciaSelecionados: number[];
+    obrigacoesProximas: FiscalObligationResult[];
 }
 
 @Injectable()
 export class FiscalReminderService {
-  constructor(private readonly userService: UserService) {}
+    constructor(
+        @InjectModel(FiscalReminder.name)
+        private readonly fiscalReminderModel: Model<FiscalReminderDocument>,
+        @Inject(forwardRef(() => UserService))
+        private readonly userService: UserService,
+        private readonly emailService: EmailService,
+        private readonly configurationService: ConfigService
+    ) {}
 
-  async getSummary(userId: string): Promise<FiscalReminderSummary> {
-    const user = await this.userService.findById(userId);
-    const planSlug = user?.plano?.slug ?? null;
-    const accessAllowed = planSlug !== null;
-    const diasAntecedenciaPermitidos = this.resolveAllowedDays(planSlug);
-    const selectedDays = user?.fiscalReminderPreferences?.diasAntecedencia
-      ?.length
-      ? user.fiscalReminderPreferences.diasAntecedencia
-      : diasAntecedenciaPermitidos.slice(0, 3);
-
-    return {
-      accessAllowed,
-      planSlug,
-      diasAntecedenciaPermitidos,
-      diasAntecedenciaSelecionados: selectedDays,
-      obrigacoesProximas: this.buildUpcomingObligations(selectedDays),
-    };
-  }
-
-  async updateSummary(
-    userId: string,
-    payload: {
-      diasAntecedencia?: number[];
-      ativo?: boolean;
+    async getSummary(userId: string): Promise<FiscalReminderSummary> {
+        return this.getDashboardSummary(userId);
     }
-  ): Promise<FiscalReminderSummary> {
-    const user = await this.userService.atualizarPreferenciasLembretesFiscais(
-      userId,
-      payload
-    );
-    const planSlug = user?.plano?.slug ?? null;
-    const accessAllowed = planSlug !== null;
-    const diasAntecedenciaPermitidos = this.resolveAllowedDays(planSlug);
-    const selectedDays = user?.fiscalReminderPreferences?.diasAntecedencia
-      ?.length
-      ? user.fiscalReminderPreferences.diasAntecedencia
-      : diasAntecedenciaPermitidos.slice(0, 3);
 
-    return {
-      accessAllowed,
-      planSlug,
-      diasAntecedenciaPermitidos,
-      diasAntecedenciaSelecionados: selectedDays,
-      obrigacoesProximas: this.buildUpcomingObligations(selectedDays),
-    };
-  }
-
-  private resolveAllowedDays(planSlug: string | null) {
-    if (planSlug === 'pro') {
-      return [1, 3, 5, 7, 15, 20, 30];
+    async updateSummary(
+        userId: string,
+        updateFiscalReminderData: UpdateFiscalReminderDto
+    ): Promise<FiscalReminderSummary> {
+        return this.updatePreferences(userId, updateFiscalReminderData);
     }
-    return [3, 7, 15];
-  }
 
-  private buildUpcomingObligations(daysAhead: number[]) {
-    const referenceDate = new Date();
-    const month = referenceDate.getMonth();
-    const year = referenceDate.getFullYear();
-    const items = [
-      { kind: 'das', name: 'Pagamento do DAS', dueDay: 20 },
-      { kind: 'fator-r', name: 'Revisão do Fator R', dueDay: 28 },
-      { kind: 'folha', name: 'Fechamento da folha', dueDay: 5 },
-    ];
+    async getDashboardSummary(userId: string): Promise<FiscalReminderSummary> {
+        const user = await this.userService.findById(userId);
+        const planSlug = normalizePlanSlug(user?.plano?.slug);
+        const accessAllowed = isPlanAtLeast(user?.plano?.slug, 'essencial');
+        const diasAntecedenciaPermitidos = this.getAllowedReminderDays(planSlug);
+        const reminder = await this.findOrCreateReminder(userId, planSlug);
+        const obrigacoesProximas = buildFiscalObligations(
+            new Date(),
+            user?.empresa ?? null
+        ).sort((firstObligation, secondObligation) => {
+            return firstObligation.daysRemaining - secondObligation.daysRemaining;
+        });
 
-    return items
-      .map((item) => {
-        const dueDate = new Date(year, month, item.dueDay);
-        if (dueDate < referenceDate) {
-          dueDate.setMonth(dueDate.getMonth() + 1);
-        }
-        const daysRemaining = Math.max(
-          0,
-          Math.ceil(
-            (dueDate.getTime() - referenceDate.getTime()) /
-              (1000 * 60 * 60 * 24)
-          )
-        );
         return {
-          ...item,
-          dueDate: dueDate.toISOString(),
-          daysRemaining,
+            accessAllowed,
+            planSlug,
+            diasAntecedenciaPermitidos,
+            diasAntecedenciaSelecionados: reminder.diasAntecedencia,
+            obrigacoesProximas,
         };
-      })
-      .filter((item) => daysAhead.some((day) => item.daysRemaining <= day))
-      .sort(
-        (leftItem, rightItem) =>
-          leftItem.daysRemaining - rightItem.daysRemaining
-      )
-      .slice(0, 5);
-  }
+    }
+
+    async updatePreferences(
+        userId: string,
+        updateFiscalReminderData: UpdateFiscalReminderDto
+    ): Promise<FiscalReminderSummary> {
+        const user = await this.userService.findById(userId);
+        if (!isPlanAtLeast(user?.plano?.slug, 'essencial')) {
+            throw new ForbiddenException(
+                'Calendário fiscal disponível no Essencial. Assine em Planos.'
+            );
+        }
+
+        const planSlug = normalizePlanSlug(user?.plano?.slug);
+        const diasAntecedenciaPermitidos = this.getAllowedReminderDays(planSlug);
+        const diasAntecedenciaSelecionados = this.normalizeSelectedDays(
+            planSlug,
+            updateFiscalReminderData.diasAntecedencia
+        );
+
+        const reminder = await this.fiscalReminderModel.findOneAndUpdate(
+            { userId },
+            {
+                userId,
+                diasAntecedencia: diasAntecedenciaSelecionados,
+                ativo: updateFiscalReminderData.ativo ?? true,
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+
+        const obrigacoesProximas = buildFiscalObligations(
+            new Date(),
+            user?.empresa ?? null
+        ).sort((firstObligation, secondObligation) => {
+            return firstObligation.daysRemaining - secondObligation.daysRemaining;
+        });
+
+        return {
+            accessAllowed: true,
+            planSlug,
+            diasAntecedenciaPermitidos,
+            diasAntecedenciaSelecionados:
+                reminder?.diasAntecedencia ?? diasAntecedenciaSelecionados,
+            obrigacoesProximas,
+        };
+    }
+
+    @Cron('0 9 1 * *')
+    async dispatchMonthlyClosingReminders() {
+        try {
+            const recipients =
+                await this.userService.findUsersEligibleForMonthlyClosingEmail();
+
+            for (const recipient of recipients) {
+                try {
+                    await this.emailService.sendMonthlyClosingReminder({
+                        recipientEmail: recipient.email,
+                        recipientName: recipient.nome,
+                        dashboardUrl: `${this.getFrontendUrl()}/app/dashboard`,
+                    });
+                } catch {
+                    continue;
+                }
+            }
+        } catch {
+            return;
+        }
+    }
+
+    @Cron(CronExpression.EVERY_DAY_AT_8AM)
+    async dispatchDueReminders() {
+        try {
+            const reminders = await this.fiscalReminderModel
+                .find({ ativo: true })
+                .lean();
+
+            for (const reminder of reminders) {
+                const user = await this.userService.findById(reminder.userId);
+                if (!isPlanAtLeast(user?.plano?.slug, 'essencial')) {
+                    continue;
+                }
+
+                const ultimoEnvioEm = reminder.ultimoEnvioEm
+                    ? new Date(reminder.ultimoEnvioEm)
+                    : null;
+                if (
+                    ultimoEnvioEm &&
+                    ultimoEnvioEm.toDateString() === new Date().toDateString()
+                ) {
+                    continue;
+                }
+
+                const obligations = buildFiscalObligations(
+                    new Date(),
+                    user?.empresa ?? null
+                );
+
+                for (const obligation of obligations) {
+                    if (!reminder.diasAntecedencia.includes(obligation.daysRemaining)) {
+                        continue;
+                    }
+
+                    try {
+                        await this.emailService.sendFiscalReminder({
+                            recipientEmail: user?.email ?? '',
+                            recipientName: user?.nome ?? undefined,
+                            obligationName: obligation.name,
+                            dueDate: obligation.dueDate,
+                            daysRemaining: obligation.daysRemaining,
+                            daysAhead: obligation.daysRemaining,
+                            dashboardUrl: `${this.getFrontendUrl()}/app/dashboard`,
+                        });
+                        await this.fiscalReminderModel.updateOne(
+                            { _id: reminder._id },
+                            { ultimoEnvioEm: new Date() }
+                        );
+                    } catch {
+                        continue;
+                    }
+                }
+            }
+        } catch {
+            return;
+        }
+    }
+
+    private async findOrCreateReminder(
+        userId: string,
+        planSlug: PlanSlug | null
+    ) {
+        const existingReminder = await this.fiscalReminderModel.findOne({
+            userId,
+        });
+
+        if (existingReminder) {
+            existingReminder.diasAntecedencia = this.normalizeSelectedDays(
+                planSlug,
+                existingReminder.diasAntecedencia
+            );
+            await existingReminder.save();
+            return existingReminder;
+        }
+
+        return this.fiscalReminderModel.create({
+            userId,
+            diasAntecedencia: this.getAllowedReminderDays(planSlug),
+            ativo: true,
+        });
+    }
+
+    private normalizeSelectedDays(
+        planSlug: PlanSlug | null,
+        selectedDays?: number[]
+    ) {
+        const allowedDays = this.getAllowedReminderDays(planSlug);
+        const providedDays = (selectedDays ?? []).filter((day) =>
+            allowedDays.includes(day)
+        );
+
+        if (providedDays.length > 0) {
+            return Array.from(new Set(providedDays)).sort(
+                (firstDay, secondDay) => firstDay - secondDay
+            );
+        }
+
+        return allowedDays;
+    }
+
+    private getAllowedReminderDays(planSlug: PlanSlug | null) {
+        if (!planSlug || planSlug === 'essencial') {
+            return [7];
+        }
+
+        if (planSlug === 'controle' || planSlug === 'automacao') {
+            return [3, 5, 7];
+        }
+
+        if (planSlug === 'pro') {
+            return [1, 3, 5, 7, 15, 20, 30];
+        }
+
+        return [7];
+    }
+
+    private getFrontendUrl() {
+        return (
+            this.configurationService.get<string>(
+                'FRONTEND_URL',
+                'http://localhost:4200'
+            ) ?? 'http://localhost:4200'
+        );
+    }
 }

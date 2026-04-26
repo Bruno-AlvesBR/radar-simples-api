@@ -4,8 +4,10 @@ import { Model } from 'mongoose';
 import { calculateSimples } from '../engine/simples-nacional.engine';
 import { SimulateDto } from './dto/simulate.dto';
 import { ProjectionDto } from './dto/projection.dto';
+import { CompareSimulationsDto } from './dto/compare-simulations.dto';
 import { Simulacao, SimulacaoDocument } from './schemas/simulacao.schema';
 import { UserService } from '../user/user.service';
+import { isPlanAtLeast } from '../plans/plan.constants';
 
 @Injectable()
 export class SimulateService {
@@ -30,7 +32,7 @@ export class SimulateService {
     if (userId) {
       const user = await this.userService.findById(userId);
       const plano = user?.plano;
-      if (!plano) {
+      if (!isPlanAtLeast(typeof plano === 'object' ? plano?.slug : plano, 'essencial')) {
         throw new ForbiddenException(
           'Assine um plano para salvar simulações. Acesse Planos.',
         );
@@ -49,9 +51,9 @@ export class SimulateService {
       const user = await this.userService.findById(userId);
       const plano = user?.plano;
       const slug = typeof plano === 'object' ? plano?.slug : plano;
-      if (!slug || slug !== 'pro') {
+      if (!isPlanAtLeast(slug, 'essencial')) {
         throw new ForbiddenException(
-          'Projeção disponível no PRO. Assine em Planos.',
+          'Projeção disponível no Essencial. Assine em Planos.',
         );
       }
     }
@@ -62,7 +64,7 @@ export class SimulateService {
 
     for (let i = 0; i < meses; i++) {
       const faturamento = dto.faturamentoMensal * Math.pow(crescimento, i);
-      rbt12 = rbt12 * (11 / 12) + faturamento; // RBT12 rolante
+      rbt12 = rbt12 * (11 / 12) + faturamento;
       const result = calculateSimples({
         faturamentoMensal: faturamento,
         folhaPagamento: dto.folhaPagamento,
@@ -83,11 +85,48 @@ export class SimulateService {
     const user = await this.userService.findById(userId);
     const plano = user?.plano;
     const slug = typeof plano === 'object' ? plano?.slug : plano;
-    const limit = !slug || slug !== 'pro' ? 0 : 1000;
+    const limit = isPlanAtLeast(slug, 'essencial') ? 1000 : 0;
     return this.simulacaoModel
       .find({ userId })
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
+  }
+
+  async compare(dto: CompareSimulationsDto, userId?: string) {
+    if (userId) {
+      const user = await this.userService.findById(userId);
+      const plano = user?.plano;
+      const slug = typeof plano === 'object' ? plano?.slug : plano;
+      if (!isPlanAtLeast(slug, 'automacao')) {
+        throw new ForbiddenException(
+          'Comparação de cenários disponível no Automação. Assine em Planos.',
+        );
+      }
+    }
+
+    const scenarios = dto.scenarios.map((scenario, index) => {
+      const result = this.simulate(scenario);
+      return {
+        scenario: index + 1,
+        input: scenario,
+        result,
+      };
+    });
+
+    const bestScenario = scenarios.reduce((best, current) => {
+      if (!best) {
+        return current;
+      }
+
+      return current.result.dasEstimado < best.result.dasEstimado
+        ? current
+        : best;
+    }, scenarios[0] ?? null);
+
+    return {
+      scenarios,
+      bestScenario: bestScenario ? bestScenario.scenario : null,
+    };
   }
 }

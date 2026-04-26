@@ -1,6 +1,7 @@
 # Libraries
 
 - `src\app.module.ts` — class AppModule
+- `src\auth\auth-cookie.service.ts` — class AuthCookieService
 - `src\auth\auth.controller.ts` — class AuthController
 - `src\auth\auth.module.ts` — class AuthModule
 - `src\auth\auth.service.ts` — class AuthService
@@ -23,8 +24,21 @@
 - `src\checkout\checkout-webhook.controller.ts` — class CheckoutWebhookController
 - `src\checkout\checkout.controller.ts` — class CheckoutController
 - `src\checkout\checkout.module.ts` — class CheckoutModule
-- `src\checkout\checkout.service.ts` — class CheckoutService
+- `src\checkout\checkout.service.ts`
+  - class CheckoutService
+  - interface UpgradeCheckoutSessionResponse
+  - interface SubscriptionActionResult
 - `src\checkout\dto\create-session.dto.ts` — class CreateSessionDto
+- `src\checkout\dto\upgrade-preview.query-dto.ts` — class UpgradePreviewQueryDto
+- `src\checkout\dto\upgrade-subscription.dto.ts` — class UpgradeSubscriptionDto
+- `src\checkout\plan-change.utils.ts`
+  - function buildCheckoutPlanSummary: (planSlug, cycle, valorOverride?) => CheckoutPlanSummary
+  - function determinePlanChangeType: (currentPlanSlug, nextPlanSlug, currentCycle, nextCycle) => PlanChangeType
+  - function getFeaturesGained: (currentPlanSlug, nextPlanSlug) => void
+  - function getFeaturesLost: (currentPlanSlug, nextPlanSlug) => void
+  - function getPlanIntervalInSeconds: (cycle) => void
+  - interface CheckoutPlanSummary
+  - _...3 more_
 - `src\cnpj\cnpj.controller.ts` — class CnpjController
 - `src\cnpj\cnpj.module.ts` — class CnpjModule
 - `src\cnpj\cnpj.service.ts` — class CnpjService
@@ -35,6 +49,18 @@
   - class BrandVoice
   - type BrandVoiceDocument
   - const BrandVoiceSchema
+- `src\email\email.module.ts` — class EmailModule
+- `src\email\email.service.ts` — class EmailService
+- `src\email\email.templates.ts`
+  - function buildSupportTicketEmail: (payload) => EmailTemplateResult
+  - function buildUserRegistrationEmail: (payload) => EmailTemplateResult
+  - function buildPlanSubscriptionEmail: (payload) => EmailTemplateResult
+  - function buildCheckoutConfirmationEmail: (payload) => EmailTemplateResult
+  - function buildPlanCancellationEmail: (payload) => EmailTemplateResult
+  - function buildPlanUpgradeEmail: (payload) => EmailTemplateResult
+  - _...2 more_
+- `src\engine\engine.controller.ts` — class EngineController
+- `src\engine\engine.module.ts` — class EngineModule
 - `src\engine\simples-nacional.engine.ts`
   - function calculateFatorR: (folhaPagamento, proLabore, faturamentoMensal) => number
   - function getAnexoAplicavel: (fatorR) => 'III' | 'V'
@@ -44,12 +70,29 @@
   - function calculateLucroDistribuivel: (faturamentoMensal, das, folhaPagamento, proLabore) => number
   - _...3 more_
 - `src\fiscal-reminder\dto\update-fiscal-reminder.dto.ts` — class UpdateFiscalReminderDto
+- `src\fiscal-reminder\fiscal-obligation.helper.ts`
+  - function isMeiCompany: (company) => void
+  - function getRelevantFiscalObligations: (company) => void
+  - function getNextDueDate: (referenceDate, definition) => void
+  - function getDaysRemaining: (referenceDate, dueDate) => void
+  - function buildFiscalObligations: (referenceDate, company) => void
+  - interface FiscalObligationDefinition
+  - _...3 more_
 - `src\fiscal-reminder\fiscal-reminder.controller.ts` — class FiscalReminderController
 - `src\fiscal-reminder\fiscal-reminder.module.ts` — class FiscalReminderModule
-- `src\fiscal-reminder\fiscal-reminder.service.ts`
-  - class FiscalReminderService
-  - interface FiscalObligationSummaryItem
-  - interface FiscalReminderSummary
+- `src\fiscal-reminder\fiscal-reminder.service.ts` — class FiscalReminderService, interface FiscalReminderSummary
+- `src\fiscal-reminder\schemas\fiscal-reminder.schema.ts`
+  - class FiscalReminder
+  - type FiscalReminderDocument
+  - const FiscalReminderSchema
+- `src\invoice-import\invoice-import.controller.ts` — class InvoiceImportController
+- `src\invoice-import\invoice-import.helper.ts` — function parseInvoiceRecords: (fileBuffer, fileName?) => void, interface ParsedInvoiceRecord
+- `src\invoice-import\invoice-import.module.ts` — class InvoiceImportModule
+- `src\invoice-import\invoice-import.service.ts` — class InvoiceImportService, interface ImportedInvoiceSummary
+- `src\invoice-import\schemas\invoice-record.schema.ts`
+  - class InvoiceRecord
+  - type InvoiceRecordDocument
+  - const InvoiceRecordSchema
 - `src\keyword-research\keyword-research.controller.ts` — class KeywordResearchController
 - `src\keyword-research\keyword-research.module.ts` — class KeywordResearchModule
 - `src\keyword-research\keyword-research.service.ts` — class KeywordResearchService
@@ -65,6 +108,31 @@
   - class Lead
   - type LeadDocument
   - const LeadSchema
+- `src\plans\plan.constants.ts`
+  - function normalizePlanSlug: (planSlug) => PlanSlug | null
+  - function getPlanDefinition: (planSlug) => void
+  - function isPlanAtLeast: (planSlug, requiredPlanSlug) => void
+  - function getPlanDisplayName: (planSlug) => void
+  - function getPlanFeatures: (planSlug) => void
+  - interface PlanDefinition
+  - _...4 more_
+- `src\referral\referral.controller.ts` — class ReferralController
+- `src\referral\referral.module.ts` — class ReferralModule
+- `src\referral\referral.service.ts` — class ReferralService
+- `src\referral\schemas\referral-code.schema.ts`
+  - class ReferralCode
+  - type ReferralCodeDocument
+  - const ReferralCodeSchema
+- `src\referral\schemas\referral.schema.ts`
+  - class Referral
+  - type ReferralDocument
+  - const ReferralSchema
+- `src\reports\reports.controller.ts` — class ReportsController
+- `src\reports\reports.module.ts` — class ReportsModule
+- `src\reports\reports.service.ts`
+  - class ReportsService
+  - interface MonthlyReportSimulationItem
+  - interface MonthlyReportSummary
 - `src\seo-autopilot\seo-autopilot.module.ts` — class SeoAutopilotModule
 - `src\seo-autopilot\seo-autopilot.service.ts` — class SeoAutopilotService
 - `src\seo-monitoring\schemas\seo-metric.schema.ts`
@@ -74,6 +142,7 @@
 - `src\seo-monitoring\seo-monitoring.controller.ts` — class SeoMonitoringController
 - `src\seo-monitoring\seo-monitoring.module.ts` — class SeoMonitoringModule
 - `src\seo-monitoring\seo-monitoring.service.ts` — class SeoMonitoringService
+- `src\simulate\dto\compare-simulations.dto.ts` — class CompareSimulationScenarioDto, class CompareSimulationsDto
 - `src\simulate\dto\projection.dto.ts` — class ProjectionDto
 - `src\simulate\dto\simulate.dto.ts` — class SimulateDto
 - `src\simulate\schemas\simulacao.schema.ts`
@@ -104,4 +173,7 @@
   - _...3 more_
 - `src\user\user.controller.ts` — class UserController
 - `src\user\user.module.ts` — class UserModule
-- `src\user\user.service.ts` — class UserService
+- `src\user\user.service.ts`
+  - class UserService
+  - interface UserOnboardingStatusPayload
+  - interface UserMonthlyClosingSummaryPayload

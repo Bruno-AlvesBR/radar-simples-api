@@ -20,4 +20,14 @@ export class UserController {
   ) {
     return this.userService.salvarEmpresa(user.sub, empresa);
   }
+
+  @Get('onboarding-status')
+  getOnboardingStatus(@CurrentUser() user: { sub: string }) {
+    return this.userService.getOnboardingStatus(user.sub);
+  }
+
+  @Get('monthly-closing-summary')
+  getMonthlyClosingSummary(@CurrentUser() user: { sub: string }) {
+    return this.userService.getMonthlySummary(user.sub);
+  }
 }

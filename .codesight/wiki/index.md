@@ -1,6 +1,6 @@
 # radar-simples-api — Wiki
 
-_Generated 2026-04-25 — re-run `npx codesight --wiki` if the codebase has changed._
+_Generated 2026-04-26 — re-run `npx codesight --wiki` if the codebase has changed._
 
 Structural map compiled from source code via AST. No LLM — deterministic, 200ms.
 
@@ -15,9 +15,13 @@ Structural map compiled from source code via AST. No LLM — deterministic, 200m
 - [Blog.controller](./blog.controller.md)
 - [Cnpj.controller](./cnpj.controller.md)
 - [Content-generation.controller](./content-generation.controller.md)
+- [Engine.controller](./engine.controller.md)
 - [Fiscal-reminder.controller](./fiscal-reminder.controller.md)
+- [Invoice-import.controller](./invoice-import.controller.md)
 - [Keyword-research.controller](./keyword-research.controller.md)
 - [Leads.controller](./leads.controller.md)
+- [Referral.controller](./referral.controller.md)
+- [Reports.controller](./reports.controller.md)
 - [Seo-monitoring.controller](./seo-monitoring.controller.md)
 - [Simulate.controller](./simulate.controller.md)
 - [Stats.controller](./stats.controller.md)
@@ -27,10 +31,10 @@ Structural map compiled from source code via AST. No LLM — deterministic, 200m
 
 ## Quick Stats
 
-- Routes: **31**
-- Models: **11**
+- Routes: **46**
+- Models: **15**
 - Components: **0**
-- Env vars: **1** required, **18** with defaults
+- Env vars: **7** required, **12** with defaults
 
 ## How to Use
 
@@ -57,4 +61,4 @@ These exist in your codebase but are **not** reflected in wiki articles:
 When in doubt, search the source. The wiki is a starting point, not a complete inventory.
 
 ---
-_Last compiled: 2026-04-25 · 17 articles · [codesight](https://github.com/Houseofmvps/codesight)_
+_Last compiled: 2026-04-26 · 21 articles · [codesight](https://github.com/Houseofmvps/codesight)_

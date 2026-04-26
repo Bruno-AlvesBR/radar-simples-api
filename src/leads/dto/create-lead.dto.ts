@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEmail, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateLeadDto {
   @IsEmail()
@@ -8,4 +8,8 @@ export class CreateLeadDto {
   @IsString()
   @MaxLength(120)
   origemCaptura?: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
 }

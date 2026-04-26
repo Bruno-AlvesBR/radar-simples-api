@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Lead {
@@ -8,6 +8,9 @@ export class Lead {
 
   @Prop({ default: 'desconhecida' })
   origemCaptura: string;
+
+  @Prop({ type: MongooseSchema.Types.Mixed })
+  metadata?: Record<string, unknown>;
 
   @Prop({ default: false })
   convertidoEmUsuario: boolean;

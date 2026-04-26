@@ -2,11 +2,13 @@
 
 > **Navigation aid.** Route list and file locations extracted via AST. Read the source files listed below before implementing or modifying this subsystem.
 
-The Leads.controller subsystem handles **1 routes**.
+The Leads.controller subsystem handles **2 routes**.
 
 ## Routes
 
 - `POST` `/leads`
+  `src\leads\leads.controller.ts`
+- `GET` `/leads/stats`
   `src\leads\leads.controller.ts`
 
 ## Source Files

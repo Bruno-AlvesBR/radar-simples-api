@@ -4,7 +4,7 @@ import { IsIn, IsString } from 'class-validator';
 export class CreateSessionDto {
   @IsString()
   @Transform(({ value }) => (typeof value === 'string' ? value.toLowerCase() : value))
-  @IsIn(['essencial', 'pro', 'growth'])
+  @IsIn(['essencial', 'controle', 'automacao', 'pro'])
   planId: string;
 
   @IsString()

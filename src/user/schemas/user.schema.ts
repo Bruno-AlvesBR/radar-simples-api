@@ -55,6 +55,12 @@ export class PlanoAssinatura {
 
   @Prop({ required: true })
   dataVencimento: Date;
+
+  @Prop()
+  pausadoAte?: Date;
+
+  @Prop()
+  subscriptionFreeTrialPhaseEndsAt?: Date;
 }
 
 export const PlanoAssinaturaSchema =
@@ -62,63 +68,69 @@ export const PlanoAssinaturaSchema =
 
 @Schema({ _id: false })
 export class FiscalReminderPreferences {
-  @Prop({ type: [Number], default: [3, 7, 15] })
-  diasAntecedencia: number[];
+    @Prop({ type: [Number], default: [3, 7, 15] })
+    diasAntecedencia: number[];
 
-  @Prop({ default: false })
-  ativo: boolean;
+    @Prop({ default: false })
+    ativo: boolean;
 }
 
 export const FiscalReminderPreferencesSchema = SchemaFactory.createForClass(
-  FiscalReminderPreferences
+    FiscalReminderPreferences
 );
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true, unique: true, trim: true, lowercase: true })
-  email: string;
+    @Prop({ required: true, unique: true, trim: true, lowercase: true })
+    email: string;
 
-  @Prop({ required: true })
-  password: string;
+    @Prop({ required: true })
+    password: string;
 
-  @Prop()
-  nome: string;
+    @Prop()
+    nome: string;
 
-  @Prop({
-    enum: ['local', 'google'],
-    default: 'local',
-  })
-  authenticationProvider: 'local' | 'google';
+    @Prop({
+        enum: ['local', 'google'],
+        default: 'local',
+    })
+    authenticationProvider: 'local' | 'google';
 
-  @Prop({ unique: true, sparse: true })
-  googleId?: string;
+    @Prop({ unique: true, sparse: true })
+    googleId?: string;
 
-  @Prop({ default: false })
-  emailVerified?: boolean;
+    @Prop({ default: false })
+    emailVerified?: boolean;
 
-  @Prop()
-  avatarUrl?: string;
+    @Prop()
+    avatarUrl?: string;
 
-  @Prop({ type: EmpresaSchema })
-  empresa: Empresa;
+    @Prop({ type: EmpresaSchema })
+    empresa: Empresa;
 
-  @Prop({ type: PlanoAssinaturaSchema })
-  plano?: PlanoAssinatura;
+    @Prop({ type: PlanoAssinaturaSchema })
+    plano?: PlanoAssinatura;
 
-  @Prop()
-  stripeCustomerId?: string;
+    @Prop()
+    stripeCustomerId?: string;
 
-  @Prop()
-  stripeSubscriptionId?: string;
+    @Prop()
+    stripeSubscriptionId?: string;
 
-  @Prop({
-    type: FiscalReminderPreferencesSchema,
-    default: {
-      diasAntecedencia: [3, 7, 15],
-      ativo: false,
-    },
-  })
-  fiscalReminderPreferences?: FiscalReminderPreferences;
+    @Prop({
+        type: FiscalReminderPreferencesSchema,
+        default: {
+            diasAntecedencia: [3, 7, 15],
+            ativo: false,
+        },
+    })
+    fiscalReminderPreferences?: FiscalReminderPreferences;
+
+    @Prop()
+    automaticSubscriptionRenewalCancelledAtPeriodEnd?: boolean;
+
+    @Prop()
+    subscriptionFreeTrialPreviouslyUsed?: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

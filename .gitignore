@@ -2,3 +2,5 @@
 /dist
 /package-lock.json
 /.env
+/notas_fiscais_resumo.csv
+/gerar.py

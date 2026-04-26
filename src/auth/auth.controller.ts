@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
+import { AuthCookieService } from './auth-cookie.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -21,17 +22,45 @@ import { GoogleProfile } from './google.strategy';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService
+    private readonly authCookieService: AuthCookieService,
+    private readonly configService?: ConfigService
   ) {}
 
   @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  async register(
+    @Body() registerData: RegisterDto,
+    @Res({ passthrough: true }) response: Response
+  ) {
+    const authenticationResponse = await this.authService.register(
+      registerData
+    );
+    this.authCookieService.setAuthenticationCookie(
+      response,
+      authenticationResponse.access_token
+    );
+
+    return authenticationResponse;
   }
 
   @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(
+    @Body() loginData: LoginDto,
+    @Res({ passthrough: true }) response: Response
+  ) {
+    const authenticationResponse = await this.authService.login(loginData);
+    this.authCookieService.setAuthenticationCookie(
+      response,
+      authenticationResponse.access_token
+    );
+
+    return authenticationResponse;
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) response: Response) {
+    this.authCookieService.clearAuthenticationCookie(response);
+
+    return { success: true };
   }
 
   @Get('google')
@@ -50,7 +79,8 @@ export class AuthController {
     const authenticationResponse =
       await this.authService.loginOrRegisterWithGoogle(request.user);
     const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:4200';
+      this.configService?.get<string>('FRONTEND_URL') ??
+      'http://localhost:4200';
     const callbackUrl = new URL('/auth/callback', frontendUrl);
     const decodedState = this.decodeOAuthState(state);
 
@@ -78,9 +108,11 @@ export class AuthController {
       const parsedState = JSON.parse(
         Buffer.from(rawState, 'base64url').toString('utf8')
       ) as { returnUrl?: string };
+
       if (parsedState.returnUrl && parsedState.returnUrl.startsWith('/')) {
         return { returnUrl: parsedState.returnUrl };
       }
+
       return { returnUrl: '/app/dashboard' };
     } catch {
       throw new UnauthorizedException('Invalid oauth state');

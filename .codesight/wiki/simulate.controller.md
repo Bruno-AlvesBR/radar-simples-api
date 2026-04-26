@@ -2,7 +2,7 @@
 
 > **Navigation aid.** Route list and file locations extracted via AST. Read the source files listed below before implementing or modifying this subsystem.
 
-The Simulate.controller subsystem handles **4 routes** and touches: auth.
+The Simulate.controller subsystem handles **5 routes** and touches: auth.
 
 ## Routes
 
@@ -13,6 +13,8 @@ The Simulate.controller subsystem handles **4 routes** and touches: auth.
 - `GET` `/simulate/projection` [auth]
   `src\simulate\simulate.controller.ts`
 - `GET` `/simulate/history` [auth]
+  `src\simulate\simulate.controller.ts`
+- `POST` `/simulate/compare` [auth]
   `src\simulate\simulate.controller.ts`
 
 ## Source Files

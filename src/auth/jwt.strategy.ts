@@ -7,9 +7,14 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(config: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request) =>
+          request?.cookies?.['radar-do-simples-authentication-token'] ?? null,
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_SECRET') || 'radar-do-simples-secret-dev',
+      secretOrKey:
+        config.get<string>('JWT_SECRET') || 'radar-do-simples-secret-dev',
     });
   }
 
